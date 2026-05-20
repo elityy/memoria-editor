@@ -30,6 +30,7 @@ export type {
   SceneIcon,
   SceneVectorBoard,
   SceneGroup,
+  ScenePlaceholder,
   SceneShadow,
 } from './lib/avnac-scene'
 

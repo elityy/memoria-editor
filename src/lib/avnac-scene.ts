@@ -19,6 +19,7 @@ export type SceneObjectType =
   | 'icon'
   | 'vector-board'
   | 'group'
+  | 'placeholder'
 
 export type SceneShadow = ShadowUi
 
@@ -136,6 +137,28 @@ export type SceneGroup = SceneObjectBase & {
   children: SceneObject[]
 }
 
+/**
+ * ScenePlaceholder — Memoria extension.
+ *
+ * Represents a runtime-bound image slot (e.g., guest photo).
+ * At design time: renders as a styled boundary with optional preview.
+ * At print time: the rendering service fills it with the provided image.
+ */
+export type ScenePlaceholder = SceneObjectBase & {
+  type: 'placeholder'
+  /** References a placeholder definition by ID */
+  placeholderId: string
+  /** How the runtime image fills the bounds */
+  fit: 'cover' | 'contain' | 'fill'
+  /** Optional preview image URL for editor visualization */
+  previewImageUrl?: string
+  /** Visual indicator color in editor (default: accent) */
+  borderColor?: string
+  /** Overlay label text (e.g., "Guest Photo") */
+  label?: string
+  cornerRadius: number
+}
+
 export type SceneObject =
   | SceneRect
   | SceneEllipse
@@ -148,6 +171,7 @@ export type SceneObject =
   | SceneIcon
   | SceneVectorBoard
   | SceneGroup
+  | ScenePlaceholder
 
 export type SceneGroupSpacingAxis = 'horizontal' | 'vertical'
 
@@ -495,6 +519,18 @@ function parseSceneObject(raw: unknown): SceneObject | null {
       children: childrenRaw
         .map(child => parseSceneObject(child))
         .filter((child): child is SceneObject => child != null),
+    }
+  }
+  if (type === 'placeholder') {
+    const fit = obj.fit === 'contain' || obj.fit === 'fill' ? obj.fit : 'cover'
+    return {
+      ...baseObjectFromUnknown(obj, 'placeholder'),
+      placeholderId: typeof obj.placeholderId === 'string' ? obj.placeholderId : '',
+      fit,
+      previewImageUrl: typeof obj.previewImageUrl === 'string' ? obj.previewImageUrl : undefined,
+      borderColor: typeof obj.borderColor === 'string' ? obj.borderColor : undefined,
+      label: typeof obj.label === 'string' ? obj.label : undefined,
+      cornerRadius: typeof obj.cornerRadius === 'number' ? Math.max(0, obj.cornerRadius) : 0,
     }
   }
   return null
@@ -968,6 +1004,8 @@ export function cloneSceneObject<T extends SceneObject>(obj: T): T {
         ...base,
         children: obj.children.map(child => cloneSceneObject(child)),
       } as T
+    case 'placeholder':
+      return { ...base } as T
   }
 }
 
@@ -1008,6 +1046,8 @@ export function objectDisplayName(obj: SceneObject): string {
       return 'Vector board'
     case 'group':
       return 'Group'
+    case 'placeholder':
+      return obj.label?.trim() || 'Placeholder'
   }
 }
 
@@ -1080,16 +1120,16 @@ export function objectSupportsFill(obj: SceneObject): boolean {
 }
 
 export function objectSupportsCornerRadius(obj: SceneObject): boolean {
-  return obj.type === 'rect' || obj.type === 'image'
+  return obj.type === 'rect' || obj.type === 'image' || obj.type === 'placeholder'
 }
 
 export function getObjectCornerRadius(obj: SceneObject): number {
-  if (obj.type === 'rect' || obj.type === 'image') return obj.cornerRadius
+  if (obj.type === 'rect' || obj.type === 'image' || obj.type === 'placeholder') return obj.cornerRadius
   return 0
 }
 
 export function setObjectCornerRadius(obj: SceneObject, radius: number): SceneObject {
-  if (obj.type !== 'rect' && obj.type !== 'image') return obj
+  if (obj.type !== 'rect' && obj.type !== 'image' && obj.type !== 'placeholder') return obj
   return {
     ...obj,
     cornerRadius: Math.max(0, Math.round(radius)),
