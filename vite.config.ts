@@ -39,7 +39,7 @@ export default defineConfig(() => {
         },
       },
       cssCodeSplit: false,
-      sourcemap: true,
+      sourcemap: false,
     },
     // Dev server still works for local development
     server: {
