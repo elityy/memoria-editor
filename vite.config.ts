@@ -1,14 +1,13 @@
 import { createRequire } from 'node:module'
+import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import viteReact from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import dts from 'vite-plugin-dts'
 
 const require = createRequire(import.meta.url)
-
-const standardJsonEsm = fileURLToPath(
-  new URL('./node_modules/@standard-community/standard-json/dist/index.js', import.meta.url),
-)
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 const proEditorSidebarIconsModule = fileURLToPath(
   new URL('./src/lib/editor-sidebar-icons.pro.ts', import.meta.url),
@@ -27,12 +26,11 @@ const hasHugeiconsPro = (() => {
   }
 })()
 
-const config = defineConfig(() => {
+export default defineConfig(() => {
   console.info(
     `[icons] ${hasHugeiconsPro ? 'Hugeicons Pro detected' : 'Hugeicons Pro not installed; using free fallback'}`,
   )
   return {
-    base: '/',
     resolve: {
       tsconfigPaths: true,
       alias: [
@@ -48,19 +46,45 @@ const config = defineConfig(() => {
               },
             ]
           : []),
-        // Rolldown/Vite 8 can't parse `.cjs` files that contain dynamic
-        // `await import(...)`. Force this dep to its ESM entry so the
-        // `require` condition from @tambo-ai/client never pulls the CJS
-        // shards through the production client build.
-        {
-          find: /^@standard-community\/standard-json$/,
-          replacement: standardJsonEsm,
-        },
       ],
     },
-    plugins: [tailwindcss(), viteReact()],
-    server: {},
+    plugins: [
+      tailwindcss(),
+      viteReact(),
+      dts({
+        include: ['src/**/*.ts', 'src/**/*.tsx'],
+        outDir: 'dist',
+        rollupTypes: true,
+        tsconfigPath: './tsconfig.json',
+      }),
+    ],
+    build: {
+      lib: {
+        entry: resolve(__dirname, 'src/index.ts'),
+        formats: ['es'],
+        fileName: 'index',
+      },
+      rollupOptions: {
+        external: [
+          'react',
+          'react-dom',
+          'react/jsx-runtime',
+          'react-dom/client',
+        ],
+        output: {
+          globals: {
+            react: 'React',
+            'react-dom': 'ReactDOM',
+          },
+          assetFileNames: 'styles[extname]',
+        },
+      },
+      cssCodeSplit: false,
+      sourcemap: true,
+    },
+    // Dev server still works for local development
+    server: {
+      port: 3300,
+    },
   }
 })
-
-export default config
