@@ -26,11 +26,7 @@ export type EditorSidebarIconDefinition = {
 
 export type EditorSidebarIconSet = Record<EditorSidebarIconId, EditorSidebarIconDefinition>
 
-/**
- * Default, contributor-friendly icon set.
- * Vite swaps this module for `editor-sidebar-icons.pro.ts` when the
- * optional Hugeicons Pro package is installed.
- */
+/** Default, contributor-friendly icon set. */
 export const editorSidebarIcons: EditorSidebarIconSet = {
   layers: { icon: Layers02Icon, activeIcon: Layers02Icon },
   uploads: { icon: CloudUploadIcon, activeIcon: CloudUploadIcon },

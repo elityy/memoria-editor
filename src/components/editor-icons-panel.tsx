@@ -10,7 +10,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { hugeiconsBrandIcon } from '@/lib/hugeicons-brand-icon'
 import { cloneIconSvg } from '../lib/avnac-icon'
 import { AVNAC_ICON_DRAG_MIME, serializeIconDragPayload } from '../lib/avnac-icon-drag'
 import type { SceneObject } from '../lib/avnac-scene'
@@ -18,6 +17,7 @@ import {
   editorSidebarPanelLeftClass,
   editorSidebarPanelTopClass,
 } from '../lib/editor-sidebar-panel-layout'
+import { hugeiconsBrandIcon } from '../lib/hugeicons-brand-icon'
 import {
   getHugeiconsFreeCollection,
   type HugeiconsFreeIconItem,

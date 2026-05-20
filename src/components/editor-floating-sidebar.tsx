@@ -2,7 +2,7 @@
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { motion } from 'motion/react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { type EditorSidebarIconId, editorSidebarIcons } from '@/lib/editor-sidebar-icons'
+import { type EditorSidebarIconId, editorSidebarIcons } from '../lib/editor-sidebar-icons'
 import { useEditorFeatures } from './scene-editor/editor-features-context'
 
 export type EditorSidebarPanelId = EditorSidebarIconId
