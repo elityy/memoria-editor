@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /** Curated Google Fonts family names (CSS `font-family` values). */
 export const GOOGLE_FONT_FAMILIES: readonly string[] = [
   'ABeeZee',

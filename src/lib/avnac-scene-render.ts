@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { type BgValue, bgValueToCss } from '../components/background-popover'
 import type { AvnacDocument, SceneArrow, SceneLine, SceneObject, SceneText } from './avnac-document'
 import { iconSvgToDataUrl } from './avnac-icon'

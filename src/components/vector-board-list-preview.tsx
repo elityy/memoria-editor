@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { useLayoutEffect, useRef } from 'react'
 import type { VectorBoardDocument } from '../lib/avnac-vector-board-document'
 import { renderVectorBoardDocumentPreview } from './vector-board-workspace'

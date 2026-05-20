@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 function getPublicApiBase(): string {
   return '' // configured at integration time
 }

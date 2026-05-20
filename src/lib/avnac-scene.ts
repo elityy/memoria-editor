@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { BgValue } from '../components/background-popover'
 import { cloneIconSvg, normalizeIconSvg, type SceneIconSvg } from './avnac-icon'
 import { parseShadowColor, type ShadowUi } from './avnac-shadow'

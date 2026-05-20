@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export type AvnacShapeKind = 'rect' | 'ellipse' | 'polygon' | 'star' | 'line' | 'arrow'
 
 export type ArrowLineStyle = 'solid' | 'dashed' | 'dotted'

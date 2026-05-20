@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { useCallback, useMemo } from 'react'
 
 import { objectDisplayName, type SceneObject } from '../../lib/avnac-scene'

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 function decodeHtmlAttr(s: string): string {
   return s
     .replace(/&amp;/g, '&')

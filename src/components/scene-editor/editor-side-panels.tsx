@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { lazy, Suspense } from 'react'
 
 import { emptyVectorBoardDocument } from '../../lib/avnac-vector-board-document'

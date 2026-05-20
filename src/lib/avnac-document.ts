@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export {
   AVNAC_DOC_VERSION,
   AVNAC_STORAGE_KEY,

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { AiMagicIcon, CropIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import ArtboardResizeToolbarControl from '../artboard-resize-toolbar-control'

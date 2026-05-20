@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { type CSSProperties, useEffect, useRef, useState } from 'react'
 import EditorRangeSlider from './editor-range-slider'
 import { floatingToolbarPopoverClass } from './floating-toolbar-shell'

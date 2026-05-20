@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 
 type ToolbarNumberScrubberProps = {

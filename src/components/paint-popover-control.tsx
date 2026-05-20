@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useViewportAwarePopoverPlacement } from '../hooks/use-viewport-aware-popover'
 import BackgroundPopover, { type BgValue, bgValueToSwatch } from './background-popover'

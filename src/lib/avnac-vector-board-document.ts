@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { samplePenAnchorsToPolyline, type VectorPenAnchor } from './avnac-vector-pen-bezier'
 
 export const VECTOR_BOARD_DOC_VERSION = 2 as const

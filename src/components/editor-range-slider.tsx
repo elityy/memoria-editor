@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export const editorRangeInputClassName = [
   'relative z-10 h-8 w-full cursor-pointer appearance-none bg-transparent',
   'focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/45 focus-visible:ring-offset-1',

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { createContext, type ReactNode, type RefObject, useContext } from 'react'
 
 import type { ArrowLineStyle, ArrowPathType, AvnacShapeMeta } from '../../lib/avnac-shape-meta'

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 /**
  * Stable runtime surface that the Tambo agent uses to manipulate the main
  * design scene. Built inside `SceneEditor` where it can close over the

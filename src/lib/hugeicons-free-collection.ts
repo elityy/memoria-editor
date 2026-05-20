@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import * as hugeiconsFree from '@hugeicons/core-free-icons?icon-collection'
 import type { IconSvgElement } from '@hugeicons/react'
 

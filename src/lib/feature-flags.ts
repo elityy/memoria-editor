@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 function envFlagEnabled(value: unknown): boolean {
   return (
     String(value ?? '')

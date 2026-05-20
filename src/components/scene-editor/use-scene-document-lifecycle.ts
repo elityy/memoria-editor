@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { type Dispatch, type MutableRefObject, type SetStateAction, useEffect } from 'react'
 import { idbGetDocument, idbPutDocument } from '../../lib/avnac-editor-idb'
 import {

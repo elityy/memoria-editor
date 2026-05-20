@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 export function readClipboardImageFiles(): Promise<File[]> {
   const read = navigator.clipboard?.read
   if (!read) return Promise.resolve([])

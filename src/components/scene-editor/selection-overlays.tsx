@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 
 import type { SceneImage, SceneObject } from '../../lib/avnac-scene'

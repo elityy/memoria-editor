@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { createContext, type ReactNode, useContext } from 'react'
 
 import type { AiDesignController } from '../../lib/avnac-ai-controller'

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 const loaded = new Set<string>()
 const fontReadyPromises = new Map<string, Promise<void>>()
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { type Dispatch, type SetStateAction, useMemo } from 'react'
 import type {
   AiDesignController,

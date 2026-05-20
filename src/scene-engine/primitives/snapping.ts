@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { SceneBounds, SceneSnapGuide } from './types'
 
 export const SNAP_DEADBAND_PX = 0.25

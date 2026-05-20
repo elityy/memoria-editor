@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { MarqueeRect, ResizeHandleId } from './types'
 
 const ROTATION_SNAP_DEG = 15

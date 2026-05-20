@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { motion } from 'motion/react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'

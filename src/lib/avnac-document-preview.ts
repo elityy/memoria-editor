@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 import type { AvnacDocument } from './avnac-document'
 import { renderAvnacDocumentToDataUrl } from './avnac-scene-render'
 import { loadVectorBoardDocs } from './avnac-vector-boards-storage'
