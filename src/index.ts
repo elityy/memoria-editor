@@ -60,6 +60,13 @@ export {
   toAssetRef,
 } from './lib/avnac-asset-resolver'
 
+// ── Asset library ────────────────────────────────────────────────
+export type {
+  AssetLibraryItem,
+  AssetLibraryFetchResult,
+  OnFetchAssets,
+} from './lib/avnac-asset-library'
+
 // ── Feature flags ─────────────────────────────────────────────────
 export {
   EditorFeaturesProvider,

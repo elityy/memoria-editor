@@ -2,6 +2,7 @@
 import { Coffee02Icon, FavouriteIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { zipSync } from 'fflate'
+import type { OnFetchAssets } from '../lib/avnac-asset-library'
 import {
   forwardRef,
   type MouseEvent as ReactMouseEvent,
@@ -117,6 +118,7 @@ import EditorShortcutsModal from './editor-shortcuts-modal'
 import { FloatingToolbarDivider } from './floating-toolbar-shell'
 import ImageCropModal, { type ImageCropModalApplyPayload } from './image-crop-modal'
 import { AiControllerProvider } from './scene-editor/ai-controller-context'
+import { AssetLibraryProvider } from './scene-editor/asset-library-context'
 import { CanvasStage } from './scene-editor/canvas-stage'
 import {
   type CanvasStageContextValue,
@@ -195,6 +197,12 @@ type SceneEditorProps = {
    * Used when loading documents with externally-stored assets.
    */
   assetResolver?: (assetRef: string) => string | Promise<string>
+  /**
+   * Fetch assets for the asset library panel.
+   * Host app provides paginated, searchable asset listing.
+   * If not provided, the uploads panel shows "not connected".
+   */
+  onFetchAssets?: OnFetchAssets
 }
 
 function artboardAlignAlreadySatisfied(
@@ -449,7 +457,7 @@ function renumberPages(pages: AvnacPage[]): AvnacPage[] {
 }
 
 const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function SceneEditor(
-  { onReadyChange, persistId, persistDisplayName, initialArtboardWidth, initialArtboardHeight, onRemoveBackground, onAssetUpload, assetResolver },
+  { onReadyChange, persistId, persistDisplayName, initialArtboardWidth, initialArtboardHeight, onRemoveBackground, onAssetUpload, assetResolver, onFetchAssets },
   ref,
 ) {
   const persistIdRef = useRef<string | undefined>(persistId)
@@ -2915,14 +2923,20 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
             </div>
           ) : null}
 
-          <AiControllerProvider controller={aiController}>
-            <EditorSidePanels
-              activePanel={editorSidebarPanel}
-              onClosePanel={() => setEditorSidebarPanel(null)}
-              onSelectPanel={id => setEditorSidebarPanel(prev => (prev === id ? null : id))}
-              ready={ready}
-            />
-          </AiControllerProvider>
+          <AssetLibraryProvider
+            onFetchAssets={onFetchAssets}
+            onAssetUpload={onAssetUpload}
+            assetResolver={assetResolver}
+          >
+            <AiControllerProvider controller={aiController}>
+              <EditorSidePanels
+                activePanel={editorSidebarPanel}
+                onClosePanel={() => setEditorSidebarPanel(null)}
+                onSelectPanel={id => setEditorSidebarPanel(prev => (prev === id ? null : id))}
+                ready={ready}
+              />
+            </AiControllerProvider>
+          </AssetLibraryProvider>
           <EditorShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
           <ImageCropModal
             open={imageCropOpen}
