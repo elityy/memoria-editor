@@ -19,6 +19,7 @@ export {
   type SceneImage,
   type SceneLine,
   type SceneObject,
+  type ScenePlaceholder,
   type ScenePolygon,
   type SceneRect,
   type SceneStar,

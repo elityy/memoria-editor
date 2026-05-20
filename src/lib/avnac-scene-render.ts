@@ -159,8 +159,10 @@ function drawRoundedRectPath(
 ) {
   const r = Math.max(0, Math.min(radius, Math.min(width, height) / 2))
   ctx.beginPath()
-  if ('roundRect' in ctx) {
-    ctx.roundRect(x, y, width, height, r)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (typeof (ctx as any).roundRect === 'function') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(ctx as any).roundRect(x, y, width, height, r)
     return
   }
   ctx.moveTo(x + r, y)
@@ -173,6 +175,36 @@ function drawRoundedRectPath(
   ctx.lineTo(x, y + r)
   ctx.quadraticCurveTo(x, y, x + r, y)
   ctx.closePath()
+}
+
+function drawPlaceholderIndicator(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  label?: string,
+  borderColor?: string,
+) {
+  const accentColor = borderColor || '#ffb88e'
+  // Tinted background
+  ctx.fillStyle = `${accentColor}18`
+  ctx.fillRect(0, 0, width, height)
+  // Crosshair lines
+  ctx.strokeStyle = `${accentColor}40`
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(0, 0)
+  ctx.lineTo(width, height)
+  ctx.moveTo(width, 0)
+  ctx.lineTo(0, height)
+  ctx.stroke()
+  // Label text
+  const displayLabel = label || 'Placeholder'
+  const fontSize = Math.max(12, Math.min(24, width * 0.06))
+  ctx.fillStyle = accentColor
+  ctx.font = `600 ${fontSize}px sans-serif`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(displayLabel, width / 2, height / 2, width * 0.8)
 }
 
 function fillAndStrokeShape(
@@ -742,6 +774,68 @@ async function drawSceneObject(
         await drawSceneObject(ctx, child, vectorBoardDocs)
       }
       break
+    case 'placeholder': {
+      ctx.save()
+      drawRoundedRectPath(ctx, 0, 0, obj.width, obj.height, obj.cornerRadius)
+      ctx.clip()
+
+      if (obj.previewImageUrl) {
+        // Render preview image with fit mode
+        try {
+          const img = await loadSceneImageElement(obj.previewImageUrl)
+          const imgW = img.naturalWidth || img.width
+          const imgH = img.naturalHeight || img.height
+          if (obj.fit === 'fill') {
+            ctx.drawImage(img, 0, 0, obj.width, obj.height)
+          } else {
+            // cover or contain
+            const objRatio = obj.width / obj.height
+            const imgRatio = imgW / imgH
+            let sx = 0
+            let sy = 0
+            let sw = imgW
+            let sh = imgH
+            if (obj.fit === 'cover') {
+              if (imgRatio > objRatio) {
+                sw = imgH * objRatio
+                sx = (imgW - sw) / 2
+              } else {
+                sh = imgW / objRatio
+                sy = (imgH - sh) / 2
+              }
+            }
+            const dw = obj.fit === 'contain' ? (imgRatio > objRatio ? obj.width : obj.height * imgRatio) : obj.width
+            const dh = obj.fit === 'contain' ? (imgRatio > objRatio ? obj.width / imgRatio : obj.height) : obj.height
+            const dx = (obj.width - dw) / 2
+            const dy = (obj.height - dh) / 2
+            if (obj.fit === 'contain') {
+              ctx.drawImage(img, 0, 0, imgW, imgH, dx, dy, dw, dh)
+            } else {
+              ctx.drawImage(img, sx, sy, sw, sh, 0, 0, obj.width, obj.height)
+            }
+          }
+        } catch {
+          // Preview failed — fall through to indicator
+          drawPlaceholderIndicator(ctx, obj.width, obj.height, obj.label, obj.borderColor)
+        }
+      } else {
+        drawPlaceholderIndicator(ctx, obj.width, obj.height, obj.label, obj.borderColor)
+      }
+
+      ctx.restore()
+
+      // Draw dashed border on top (outside clip)
+      const borderCol = obj.borderColor || '#ffb88e'
+      ctx.save()
+      ctx.strokeStyle = borderCol
+      ctx.lineWidth = 2
+      ctx.setLineDash([8, 4])
+      drawRoundedRectPath(ctx, 0, 0, obj.width, obj.height, obj.cornerRadius)
+      ctx.stroke()
+      ctx.setLineDash([])
+      ctx.restore()
+      break
+    }
   }
 
   ctx.restore()

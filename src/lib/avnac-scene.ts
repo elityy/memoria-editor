@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-import type { BgValue } from '../components/background-popover'
+import type { BgValue, GradientStop } from '../components/background-popover'
 import { cloneIconSvg, normalizeIconSvg, type SceneIconSvg } from './avnac-icon'
 import { parseShadowColor, type ShadowUi } from './avnac-shadow'
 import type { ArrowLineStyle, ArrowPathType, AvnacShapeMeta } from './avnac-shape-meta'
@@ -284,7 +284,7 @@ export function cloneShadow(shadow: SceneShadow | null | undefined): SceneShadow
   return { ...shadow }
 }
 
-function isGradientStopArray(raw: unknown): raw is BgValue['stops'] {
+function isGradientStopArray(raw: unknown): raw is GradientStop[] {
   return (
     Array.isArray(raw) &&
     raw.every(
@@ -309,11 +309,12 @@ function parseBgValue(raw: unknown, fallback: BgValue): BgValue {
     typeof obj.angle === 'number' &&
     isGradientStopArray(obj.stops)
   ) {
+    const stops = obj.stops as GradientStop[]
     return {
       type: 'gradient',
       css: obj.css,
       angle: obj.angle,
-      stops: obj.stops.map(stop => ({ ...stop })),
+      stops: stops.map(stop => ({ ...stop })),
     }
   }
   return cloneBgValue(fallback)
@@ -397,6 +398,7 @@ function parseSceneObject(raw: unknown): SceneObject | null {
   if (type === 'rect') {
     return {
       ...baseObjectFromUnknown(obj, 'rect'),
+      type: 'rect' as const,
       fill: parseBgValue(obj.fill, DEFAULT_SHAPE_FILL),
       stroke: parseBgValue(obj.stroke, DEFAULT_SHAPE_STROKE),
       strokeWidth: typeof obj.strokeWidth === 'number' ? Math.max(0, obj.strokeWidth) : 0,
@@ -406,6 +408,7 @@ function parseSceneObject(raw: unknown): SceneObject | null {
   if (type === 'ellipse') {
     return {
       ...baseObjectFromUnknown(obj, 'ellipse'),
+      type: 'ellipse' as const,
       fill: parseBgValue(obj.fill, DEFAULT_SHAPE_FILL),
       stroke: parseBgValue(obj.stroke, DEFAULT_SHAPE_STROKE),
       strokeWidth: typeof obj.strokeWidth === 'number' ? Math.max(0, obj.strokeWidth) : 0,
@@ -414,6 +417,7 @@ function parseSceneObject(raw: unknown): SceneObject | null {
   if (type === 'polygon') {
     return {
       ...baseObjectFromUnknown(obj, 'polygon'),
+      type: 'polygon' as const,
       fill: parseBgValue(obj.fill, DEFAULT_SHAPE_FILL),
       stroke: parseBgValue(obj.stroke, DEFAULT_SHAPE_STROKE),
       strokeWidth: typeof obj.strokeWidth === 'number' ? Math.max(0, obj.strokeWidth) : 0,
@@ -423,6 +427,7 @@ function parseSceneObject(raw: unknown): SceneObject | null {
   if (type === 'star') {
     return {
       ...baseObjectFromUnknown(obj, 'star'),
+      type: 'star' as const,
       fill: parseBgValue(obj.fill, DEFAULT_SHAPE_FILL),
       stroke: parseBgValue(obj.stroke, DEFAULT_SHAPE_STROKE),
       strokeWidth: typeof obj.strokeWidth === 'number' ? Math.max(0, obj.strokeWidth) : 0,
@@ -433,6 +438,7 @@ function parseSceneObject(raw: unknown): SceneObject | null {
   if (type === 'line') {
     return {
       ...baseObjectFromUnknown(obj, 'line'),
+      type: 'line' as const,
       stroke: parseBgValue(obj.stroke, DEFAULT_LINE_STROKE),
       strokeWidth: typeof obj.strokeWidth === 'number' ? Math.max(1, obj.strokeWidth) : 4,
       lineStyle: obj.lineStyle === 'dashed' || obj.lineStyle === 'dotted' ? obj.lineStyle : 'solid',
@@ -442,6 +448,7 @@ function parseSceneObject(raw: unknown): SceneObject | null {
   if (type === 'arrow') {
     return {
       ...baseObjectFromUnknown(obj, 'arrow'),
+      type: 'arrow' as const,
       stroke: parseBgValue(obj.stroke, DEFAULT_LINE_STROKE),
       strokeWidth: typeof obj.strokeWidth === 'number' ? Math.max(1, obj.strokeWidth) : 4,
       lineStyle: obj.lineStyle === 'dashed' || obj.lineStyle === 'dotted' ? obj.lineStyle : 'solid',
@@ -455,6 +462,7 @@ function parseSceneObject(raw: unknown): SceneObject | null {
   if (type === 'text') {
     return {
       ...baseObjectFromUnknown(obj, 'text'),
+      type: 'text' as const,
       text: typeof obj.text === 'string' ? obj.text : '',
       fill: parseBgValue(obj.fill, DEFAULT_TEXT_FILL),
       stroke: parseBgValue(obj.stroke, DEFAULT_SHAPE_STROKE),
@@ -481,6 +489,7 @@ function parseSceneObject(raw: unknown): SceneObject | null {
     const cropRaw = obj.crop as Record<string, unknown> | undefined
     return {
       ...baseObjectFromUnknown(obj, 'image'),
+      type: 'image' as const,
       src: typeof obj.src === 'string' ? obj.src : '',
       naturalWidth,
       naturalHeight,
@@ -499,6 +508,7 @@ function parseSceneObject(raw: unknown): SceneObject | null {
     if (!svg) return null
     return {
       ...baseObjectFromUnknown(obj, 'icon'),
+      type: 'icon' as const,
       iconName: typeof obj.iconName === 'string' && obj.iconName.trim() ? obj.iconName : 'Icon',
       svg,
       fill: parseBgValue(obj.fill, DEFAULT_SHAPE_FILL),
@@ -509,6 +519,7 @@ function parseSceneObject(raw: unknown): SceneObject | null {
   if (type === 'vector-board') {
     return {
       ...baseObjectFromUnknown(obj, 'vector-board'),
+      type: 'vector-board' as const,
       boardId: typeof obj.boardId === 'string' && obj.boardId.trim() ? obj.boardId : '',
     }
   }
@@ -516,6 +527,7 @@ function parseSceneObject(raw: unknown): SceneObject | null {
     const childrenRaw = Array.isArray(obj.children) ? obj.children : []
     return {
       ...baseObjectFromUnknown(obj, 'group'),
+      type: 'group' as const,
       children: childrenRaw
         .map(child => parseSceneObject(child))
         .filter((child): child is SceneObject => child != null),
@@ -525,6 +537,7 @@ function parseSceneObject(raw: unknown): SceneObject | null {
     const fit = obj.fit === 'contain' || obj.fit === 'fill' ? obj.fit : 'cover'
     return {
       ...baseObjectFromUnknown(obj, 'placeholder'),
+      type: 'placeholder' as const,
       placeholderId: typeof obj.placeholderId === 'string' ? obj.placeholderId : '',
       fit,
       previewImageUrl: typeof obj.previewImageUrl === 'string' ? obj.previewImageUrl : undefined,
