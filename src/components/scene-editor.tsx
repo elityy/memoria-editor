@@ -1722,7 +1722,10 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
       void (async () => {
         try {
           const format = opts?.format ?? 'png'
-          const multiplier = opts?.multiplier ?? 1
+          const SCREEN_DPI = 96
+          const multiplier = opts?.targetDpi
+            ? Math.max(1, opts.targetDpi / SCREEN_DPI)
+            : (opts?.multiplier ?? 1)
           const transparent = opts?.transparent ?? false
           const fileBase = safeExportFileBaseName(persistDisplayNameRef.current || 'avnac')
           const defaultExportPages =

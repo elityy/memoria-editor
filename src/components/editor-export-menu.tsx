@@ -18,6 +18,12 @@ export type ExportImageOptions = {
   flattenPdf?: boolean
   crop?: PngExportCrop
   pageIds?: string[]
+  /**
+   * Target DPI for export. When set, overrides multiplier:
+   * effective scale = targetDpi / 96 (screen baseline).
+   * Typical values: 150 (web print), 300 (standard print), 600 (high quality).
+   */
+  targetDpi?: number
 }
 
 export type ExportPageOption = {
@@ -569,13 +575,40 @@ export default function EditorExportMenu({ disabled, getPages, onExport }: Props
                     max={3}
                     step={1}
                     value={mult}
-                    onChange={n => setOpts(p => ({ ...p, multiplier: Math.round(n) }))}
+                    onChange={n => setOpts(p => ({ ...p, multiplier: Math.round(n), targetDpi: undefined }))}
                     aria-label="Image export scale"
                     aria-valuemin={1}
                     aria-valuemax={3}
                     aria-valuenow={mult}
                     trackClassName="w-full"
                   />
+                  <div className="mt-3 flex items-center gap-1.5">
+                    <span className="text-[11px] font-medium text-neutral-500">DPI:</span>
+                    {[150, 300, 600].map(dpi => (
+                      <button
+                        key={dpi}
+                        type="button"
+                        className={[
+                          'rounded-md px-2 py-0.5 text-[11px] font-medium transition-colors',
+                          opts.targetDpi === dpi
+                            ? 'bg-black/10 text-neutral-900'
+                            : 'text-neutral-500 hover:bg-black/5',
+                        ].join(' ')}
+                        onClick={() => setOpts(p => ({ ...p, targetDpi: dpi }))}
+                      >
+                        {dpi}
+                      </button>
+                    ))}
+                    {opts.targetDpi ? (
+                      <button
+                        type="button"
+                        className="ml-1 text-[10px] text-neutral-400 hover:text-neutral-600"
+                        onClick={() => setOpts(p => ({ ...p, targetDpi: undefined }))}
+                      >
+                        ✕
+                      </button>
+                    ) : null}
+                  </div>
                 </>
               ) : null}
               {transparentAllowed ? (
@@ -614,7 +647,7 @@ export default function EditorExportMenu({ disabled, getPages, onExport }: Props
                 <div className="text-[12px] font-medium text-neutral-700">
                   {formatMeta[opts.format].label}
                   {hasMultiplePages && pageRangeSummary ? ` • Pages ${pageRangeSummary}` : ''}
-                  {opts.format !== 'pdf' ? ` • ${mult}x` : ''}
+                  {opts.format !== 'pdf' ? (opts.targetDpi ? ` • ${opts.targetDpi} DPI` : ` • ${mult}x`) : ''}
                   {transparentAllowed && opts.transparent ? ' • Transparent' : ''}
                   {opts.format === 'pdf' && opts.flattenPdf ? ' • Flattened' : ''}
                 </div>
@@ -627,6 +660,7 @@ export default function EditorExportMenu({ disabled, getPages, onExport }: Props
                   const finalOpts = {
                     ...opts,
                     multiplier: exportMult,
+                    targetDpi: opts.targetDpi,
                     pageIds: hasMultiplePages ? selectedPageIds : undefined,
                     transparent: transparentAllowed ? opts.transparent : false,
                   }
