@@ -2,7 +2,6 @@
 import { lazy, Suspense } from 'react'
 
 import { emptyVectorBoardDocument } from '../../lib/avnac-vector-board-document'
-import { useEditorFeatures } from './editor-features-context'
 import {
   editorSidebarPanelLeftClass,
   editorSidebarPanelTopClass,
@@ -14,6 +13,7 @@ import EditorLayersPanel from '../editor-layers-panel'
 import EditorUploadsPanel from '../editor-uploads-panel'
 import EditorVectorBoardPanel from '../editor-vector-board-panel'
 import VectorBoardWorkspace from '../vector-board-workspace'
+import { useEditorFeatures } from './editor-features-context'
 import { useEditorLayerControls } from './use-editor-layer-controls'
 import { useVectorBoardControlsContext } from './use-vector-board-controls'
 

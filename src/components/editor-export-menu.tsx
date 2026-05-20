@@ -575,7 +575,9 @@ export default function EditorExportMenu({ disabled, getPages, onExport }: Props
                     max={3}
                     step={1}
                     value={mult}
-                    onChange={n => setOpts(p => ({ ...p, multiplier: Math.round(n), targetDpi: undefined }))}
+                    onChange={n =>
+                      setOpts(p => ({ ...p, multiplier: Math.round(n), targetDpi: undefined }))
+                    }
                     aria-label="Image export scale"
                     aria-valuemin={1}
                     aria-valuemax={3}
@@ -647,7 +649,11 @@ export default function EditorExportMenu({ disabled, getPages, onExport }: Props
                 <div className="text-[12px] font-medium text-neutral-700">
                   {formatMeta[opts.format].label}
                   {hasMultiplePages && pageRangeSummary ? ` • Pages ${pageRangeSummary}` : ''}
-                  {opts.format !== 'pdf' ? (opts.targetDpi ? ` • ${opts.targetDpi} DPI` : ` • ${mult}x`) : ''}
+                  {opts.format !== 'pdf'
+                    ? opts.targetDpi
+                      ? ` • ${opts.targetDpi} DPI`
+                      : ` • ${mult}x`
+                    : ''}
                   {transparentAllowed && opts.transparent ? ' • Transparent' : ''}
                   {opts.format === 'pdf' && opts.flattenPdf ? ' • Flattened' : ''}
                 </div>

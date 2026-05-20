@@ -189,9 +189,7 @@ export default function EditorUploadsPanel({ open, onClose }: Props) {
     // for assets added optimistically from uploads
     if (!debouncedSearch) return assets
     const q = debouncedSearch.toLowerCase()
-    return assets.filter(
-      a => (a.name?.toLowerCase().includes(q)) || a.mimeType.includes(q),
-    )
+    return assets.filter(a => a.name?.toLowerCase().includes(q) || a.mimeType.includes(q))
   }, [assets, debouncedSearch])
 
   if (!open) return null
@@ -315,13 +313,7 @@ export default function EditorUploadsPanel({ open, onClose }: Props) {
 
 // ── Thumbnail grid item ──────────────────────────────────────────
 
-function AssetThumbnail({
-  asset,
-  onClick,
-}: {
-  asset: AssetLibraryItem
-  onClick: () => void
-}) {
+function AssetThumbnail({ asset, onClick }: { asset: AssetLibraryItem; onClick: () => void }) {
   const [loaded, setLoaded] = useState(false)
   const [errored, setErrored] = useState(false)
 
@@ -355,9 +347,7 @@ function AssetThumbnail({
       {/* Hover overlay with name */}
       {asset.name ? (
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent px-1.5 pb-1 pt-4 opacity-0 transition-opacity group-hover:opacity-100">
-          <span className="block truncate text-[10px] font-medium text-white">
-            {asset.name}
-          </span>
+          <span className="block truncate text-[10px] font-medium text-white">{asset.name}</span>
         </div>
       ) : null}
     </button>

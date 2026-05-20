@@ -76,7 +76,9 @@ type SidebarIndicatorState = {
 }
 
 /** Map panel IDs to feature flag keys */
-const PANEL_FEATURE_MAP: Partial<Record<EditorSidebarPanelId, keyof ReturnType<typeof useEditorFeatures>>> = {
+const PANEL_FEATURE_MAP: Partial<
+  Record<EditorSidebarPanelId, keyof ReturnType<typeof useEditorFeatures>>
+> = {
   layers: 'layers',
   uploads: 'imageUpload',
   images: 'stockImages',
@@ -91,13 +93,16 @@ export default function EditorFloatingSidebar({ activePanel, onSelectPanel, disa
   const [indicator, setIndicator] = useState<SidebarIndicatorState | null>(null)
   const features = useEditorFeatures()
   const visibleItems = useMemo(
-    () => ITEMS.filter(item => {
-      const flag = PANEL_FEATURE_MAP[item.id]
-      return !flag || features[flag]
-    }),
+    () =>
+      ITEMS.filter(item => {
+        const flag = PANEL_FEATURE_MAP[item.id]
+        return !flag || features[flag]
+      }),
     [features],
   )
-  const activeItem = activePanel ? (visibleItems.find(item => item.id === activePanel) ?? null) : null
+  const activeItem = activePanel
+    ? (visibleItems.find(item => item.id === activePanel) ?? null)
+    : null
 
   useLayoutEffect(() => {
     if (!activeItem || activeItem.fancy) {

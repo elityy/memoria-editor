@@ -146,6 +146,7 @@ export async function idbPutDocument(
         id,
         updatedAt: Date.now(),
         document,
+        storageKind: 'current',
         name,
       } satisfies AvnacEditorIdbRecord)
     })

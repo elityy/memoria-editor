@@ -158,11 +158,10 @@ function drawRoundedRectPath(
   radius: number,
 ) {
   const r = Math.max(0, Math.min(radius, Math.min(width, height) / 2))
+  const roundRect = ctx.roundRect
   ctx.beginPath()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (typeof (ctx as any).roundRect === 'function') {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(ctx as any).roundRect(x, y, width, height, r)
+  if (typeof roundRect === 'function') {
+    roundRect.call(ctx, x, y, width, height, r)
     return
   }
   ctx.moveTo(x + r, y)
@@ -804,8 +803,18 @@ async function drawSceneObject(
                 sy = (imgH - sh) / 2
               }
             }
-            const dw = obj.fit === 'contain' ? (imgRatio > objRatio ? obj.width : obj.height * imgRatio) : obj.width
-            const dh = obj.fit === 'contain' ? (imgRatio > objRatio ? obj.width / imgRatio : obj.height) : obj.height
+            const dw =
+              obj.fit === 'contain'
+                ? imgRatio > objRatio
+                  ? obj.width
+                  : obj.height * imgRatio
+                : obj.width
+            const dh =
+              obj.fit === 'contain'
+                ? imgRatio > objRatio
+                  ? obj.width / imgRatio
+                  : obj.height
+                : obj.height
             const dx = (obj.width - dw) / 2
             const dy = (obj.height - dh) / 2
             if (obj.fit === 'contain') {

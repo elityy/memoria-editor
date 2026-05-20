@@ -1109,7 +1109,10 @@ export function sceneObjectToShapeMeta(obj: SceneObject): AvnacShapeMeta | null 
   }
 }
 
-export function objectSupportsOutlineStroke(obj: SceneObject): boolean {
+type FillableObject = Extract<SceneObject, { fill: BgValue }>
+type OutlineStrokeObject = Extract<SceneObject, { stroke: BgValue; strokeWidth: number }>
+
+export function objectSupportsOutlineStroke(obj: SceneObject): obj is OutlineStrokeObject {
   return (
     obj.type === 'rect' ||
     obj.type === 'ellipse' ||
@@ -1121,7 +1124,7 @@ export function objectSupportsOutlineStroke(obj: SceneObject): boolean {
   )
 }
 
-export function objectSupportsFill(obj: SceneObject): boolean {
+export function objectSupportsFill(obj: SceneObject): obj is FillableObject {
   return (
     obj.type === 'rect' ||
     obj.type === 'ellipse' ||
@@ -1137,7 +1140,8 @@ export function objectSupportsCornerRadius(obj: SceneObject): boolean {
 }
 
 export function getObjectCornerRadius(obj: SceneObject): number {
-  if (obj.type === 'rect' || obj.type === 'image' || obj.type === 'placeholder') return obj.cornerRadius
+  if (obj.type === 'rect' || obj.type === 'image' || obj.type === 'placeholder')
+    return obj.cornerRadius
   return 0
 }
 

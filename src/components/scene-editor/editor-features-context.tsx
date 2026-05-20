@@ -56,9 +56,7 @@ export function EditorFeaturesProvider({
 }) {
   const features = useMemo(() => resolveFeatures(config), [config])
   return (
-    <EditorFeaturesContext.Provider value={features}>
-      {children}
-    </EditorFeaturesContext.Provider>
+    <EditorFeaturesContext.Provider value={features}>{children}</EditorFeaturesContext.Provider>
   )
 }
 

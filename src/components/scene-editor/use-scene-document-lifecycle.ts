@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-import { type Dispatch, type MutableRefObject, type SetStateAction, useEffect } from 'react'
+import { type Dispatch, type MutableRefObject, type SetStateAction, useEffect, useRef } from 'react'
 import { resolveAllPagesAssets } from '../../lib/avnac-asset-resolver'
 import { idbGetDocument, idbPutDocument } from '../../lib/avnac-editor-idb'
 import {
@@ -23,6 +23,8 @@ type UseSceneDocumentLifecycleArgs = {
   historyTimerRef: MutableRefObject<number | null>
   initialArtboardHeight?: number
   initialArtboardWidth?: number
+  initialDocument?: AvnacDocument
+  onChange?: (doc: AvnacDocument) => void
   onReadyChange?: (ready: boolean) => void
   persistDisplayNameRef: MutableRefObject<string>
   persistId?: string
@@ -48,6 +50,8 @@ export function useSceneDocumentLifecycle({
   historyTimerRef,
   initialArtboardHeight,
   initialArtboardWidth,
+  initialDocument,
+  onChange,
   onReadyChange,
   persistDisplayNameRef,
   persistId,
@@ -60,12 +64,16 @@ export function useSceneDocumentLifecycle({
   setZoomPercent,
   zoomUserAdjustedRef,
 }: UseSceneDocumentLifecycleArgs) {
+  const lastEmittedDocumentRef = useRef<string | null>(null)
+
   useEffect(() => {
     let cancelled = false
     setReady(false)
     ;(async () => {
       let nextDoc: AvnacDocument | null = null
-      if (persistId) {
+      if (initialDocument) {
+        nextDoc = parseAvnacDocument(initialDocument)
+      } else if (persistId) {
         const raw = await idbGetDocument(persistId)
         nextDoc = raw ? parseAvnacDocument(raw) : null
       } else {
@@ -97,6 +105,7 @@ export function useSceneDocumentLifecycle({
       setTextEditingId(null)
       historyRef.current = [cloneAvnacDocument(base)]
       historyIndexRef.current = 0
+      lastEmittedDocumentRef.current = JSON.stringify(cloneAvnacDocument(base))
       zoomUserAdjustedRef.current = false
       setZoomPercent(100)
       setReady(true)
@@ -112,6 +121,7 @@ export function useSceneDocumentLifecycle({
     historyRef,
     initialArtboardHeight,
     initialArtboardWidth,
+    initialDocument,
     persistId,
     setDoc,
     setReady,
@@ -148,18 +158,24 @@ export function useSceneDocumentLifecycle({
     if (autosaveTimerRef.current) window.clearTimeout(autosaveTimerRef.current)
     autosaveTimerRef.current = window.setTimeout(() => {
       const snapshot = cloneAvnacDocument(doc)
+      const serialized = JSON.stringify(snapshot)
       if (!persistIdRef.current) {
         localStorage.setItem(AVNAC_STORAGE_KEY, JSON.stringify(snapshot))
+      } else {
+        void idbPutDocument(persistIdRef.current, snapshot, {
+          name: persistDisplayNameRef.current,
+        }).catch(error => {
+          console.error('[avnac] autosave failed', error)
+        })
+      }
+      if (serialized === lastEmittedDocumentRef.current) {
         return
       }
-      void idbPutDocument(persistIdRef.current, snapshot, {
-        name: persistDisplayNameRef.current,
-      }).catch(error => {
-        console.error('[avnac] autosave failed', error)
-      })
+      lastEmittedDocumentRef.current = serialized
+      onChange?.(snapshot)
     }, 240)
     return () => {
       if (autosaveTimerRef.current) window.clearTimeout(autosaveTimerRef.current)
     }
-  }, [autosaveTimerRef, doc, persistDisplayNameRef, persistIdRef, ready])
+  }, [autosaveTimerRef, doc, onChange, persistDisplayNameRef, persistIdRef, ready])
 }

@@ -48,11 +48,7 @@ export async function renderDocument(req: RenderRequest): Promise<ArrayBuffer> {
   ctx.font = `${Math.round(width * 0.03)}px sans-serif`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText(
-    `@memoria/render-service — ${width}×${height} @ ${scale}x`,
-    width / 2,
-    height / 2,
-  )
+  ctx.fillText(`@memoria/render-service — ${width}×${height} @ ${scale}x`, width / 2, height / 2)
 
   // TODO (Epic 3): Port avnac-scene-render.ts drawSceneObject() to node-canvas
   // - Shapes: rect, ellipse, polygon, star, line, arrow

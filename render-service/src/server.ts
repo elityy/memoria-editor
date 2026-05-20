@@ -9,8 +9,8 @@
  */
 
 import Fastify from 'fastify'
-import { renderRequestSchema, type RenderRequest } from './schema.js'
 import { renderDocument } from './renderer.js'
+import { type RenderRequest, renderRequestSchema } from './schema.js'
 
 const PORT = Number(process.env.PORT) || 4100
 const HOST = process.env.HOST || '0.0.0.0'
@@ -65,7 +65,7 @@ app.get('/source', async (_request, reply) => {
   return reply.redirect('https://github.com/elityy/memoria-editor')
 })
 
-app.listen({ port: PORT, host: HOST }, (err) => {
+app.listen({ port: PORT, host: HOST }, err => {
   if (err) {
     app.log.error(err)
     process.exit(1)

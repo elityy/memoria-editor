@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.13/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
   "root": true,
   "vcs": {
     "enabled": true,
@@ -11,13 +11,13 @@
     "includes": [
       "**",
       "!**/node_modules",
-      "!**/node_modules/**",
+      "!**/node_modules",
       "!**/dist",
-      "!**/dist/**",
+      "!**/dist",
       "!**/.output",
-      "!**/.output/**",
+      "!**/.output",
       "!**/coverage",
-      "!**/coverage/**",
+      "!**/coverage",
       "!**/package-lock.json",
       "!backend/bun.lock",
       "!frontend/src/routeTree.gen.ts"

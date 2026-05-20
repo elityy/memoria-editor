@@ -126,7 +126,11 @@ export default function NewCanvasDialog({ open, onClose }: NewCanvasDialogProps)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
 
-  const goCreate = (w: number, h: number, _opts?: { widthMm?: number; heightMm?: number; dpi?: number }) => {
+  const goCreate = (
+    w: number,
+    h: number,
+    _opts?: { widthMm?: number; heightMm?: number; dpi?: number },
+  ) => {
     // TODO: wire to editor artboard resize with mm/DPI metadata
     void Math.min(CANVAS_MAX, Math.max(CANVAS_MIN, Math.round(w)))
     void Math.min(CANVAS_MAX, Math.max(CANVAS_MIN, Math.round(h)))
@@ -201,7 +205,13 @@ export default function NewCanvasDialog({ open, onClose }: NewCanvasDialogProps)
             <button
               type="button"
               className="group flex w-full items-center gap-3 rounded-[1rem] border border-transparent bg-[var(--surface)] px-3 py-3 text-left transition-colors hover:border-black/[0.08] hover:bg-black/[0.03]"
-              onClick={() => goCreate(preset.width, preset.height, { widthMm: preset.widthMm, heightMm: preset.heightMm, dpi: preset.dpi })}
+              onClick={() =>
+                goCreate(preset.width, preset.height, {
+                  widthMm: preset.widthMm,
+                  heightMm: preset.heightMm,
+                  dpi: preset.dpi,
+                })
+              }
             >
               <div
                 className={[
@@ -367,10 +377,12 @@ export default function NewCanvasDialog({ open, onClose }: NewCanvasDialogProps)
                   </button>
                 </div>
 
-                <div className={[
-                  'gap-3 rounded-[1.4rem] border border-black/[0.08] bg-black/[0.02] p-4',
-                  customUnit === 'mm' ? 'grid grid-cols-3' : 'grid grid-cols-2',
-                ].join(' ')}>
+                <div
+                  className={[
+                    'gap-3 rounded-[1.4rem] border border-black/[0.08] bg-black/[0.02] p-4',
+                    customUnit === 'mm' ? 'grid grid-cols-3' : 'grid grid-cols-2',
+                  ].join(' ')}
+                >
                   <div>
                     <label
                       htmlFor="avnac-new-canvas-w"
@@ -428,7 +440,17 @@ export default function NewCanvasDialog({ open, onClose }: NewCanvasDialogProps)
 
                 {customUnit === 'mm' ? (
                   <p className="m-0 text-[12px] tabular-nums text-[var(--text-muted)]">
-                    Resulting size: {Math.round((Number.parseFloat(customW) || 0) / 25.4 * (Number.parseInt(customDpi) || 300))} × {Math.round((Number.parseFloat(customH) || 0) / 25.4 * (Number.parseInt(customDpi) || 300))} px
+                    Resulting size:{' '}
+                    {Math.round(
+                      ((Number.parseFloat(customW) || 0) / 25.4) *
+                        (Number.parseInt(customDpi, 10) || 300),
+                    )}{' '}
+                    ×{' '}
+                    {Math.round(
+                      ((Number.parseFloat(customH) || 0) / 25.4) *
+                        (Number.parseInt(customDpi, 10) || 300),
+                    )}{' '}
+                    px
                   </p>
                 ) : null}
 

@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-import { type ReactNode } from 'react'
-import CornerRadiusToolbarControl from './corner-radius-toolbar-control'
-import {
-  FloatingToolbarDivider,
-  FloatingToolbarShell,
-} from './floating-toolbar-shell'
-import PaintPopoverControl from './paint-popover-control'
+import type { ReactNode } from 'react'
 import type { BgValue } from './background-popover'
+import CornerRadiusToolbarControl from './corner-radius-toolbar-control'
+import { FloatingToolbarDivider, FloatingToolbarShell } from './floating-toolbar-shell'
+import PaintPopoverControl from './paint-popover-control'
 
 export type PlaceholderFitMode = 'cover' | 'contain' | 'fill'
 

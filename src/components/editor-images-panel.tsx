@@ -40,9 +40,7 @@ export default function EditorImagesPanel({ open, onClose }: Props) {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden p-6">
-        <p className="text-center text-[13px] text-neutral-500">
-          Asset library coming soon.
-        </p>
+        <p className="text-center text-[13px] text-neutral-500">Asset library coming soon.</p>
       </div>
     </div>
   )

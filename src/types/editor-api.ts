@@ -18,19 +18,19 @@ import type { AvnacDocument } from '../lib/avnac-scene'
  * that will be wired up in Epic 3.
  */
 export type MemoriaEditorProps = {
-  /** Unique ID for the template being edited (used for persistence) */
-  templateId?: string
+  /** Unique ID for the template being edited (used for local draft persistence) */
+  persistId?: string
   /** Display name shown in the editor title / export filenames */
-  displayName?: string
+  persistDisplayName?: string
   /** Initial artboard width in pixels */
-  initialWidth?: number
+  initialArtboardWidth?: number
   /** Initial artboard height in pixels */
-  initialHeight?: number
+  initialArtboardHeight?: number
 
   // ── Document lifecycle callbacks ─────────────────────────────────
 
-  /** Called when the editor is ready (document loaded, canvas initialized) */
-  onReady?: () => void
+  /** Called when editor readiness changes */
+  onReadyChange?: (ready: boolean) => void
   /**
    * Called when the document changes (debounced ~240ms).
    * Host app should persist the returned AvnacDocument JSON.

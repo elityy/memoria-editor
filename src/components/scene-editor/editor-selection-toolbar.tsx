@@ -57,12 +57,20 @@ export function EditorSelectionToolbar() {
 
   const showTextToolbar = ready && !!textToolbarValues
   const showShapeToolbar = ready && !textToolbarValues && !!shapeToolbarModel
-  const showPlaceholderToolbar = ready && !textToolbarValues && !shapeToolbarModel && !!placeholderToolbar
-  const showEffectsToolbar = ready && hasObjectSelected && !textToolbarValues && !shapeToolbarModel && !placeholderToolbar
+  const showPlaceholderToolbar =
+    ready && !textToolbarValues && !shapeToolbarModel && !!placeholderToolbar
+  const showEffectsToolbar =
+    ready && hasObjectSelected && !textToolbarValues && !shapeToolbarModel && !placeholderToolbar
   const showBackgroundToolbar =
     ready && backgroundActive && !hasObjectSelected && !textToolbarValues && !shapeToolbarModel
 
-  if (!showTextToolbar && !showShapeToolbar && !showPlaceholderToolbar && !showEffectsToolbar && !showBackgroundToolbar) {
+  if (
+    !showTextToolbar &&
+    !showShapeToolbar &&
+    !showPlaceholderToolbar &&
+    !showEffectsToolbar &&
+    !showBackgroundToolbar
+  ) {
     return null
   }
 

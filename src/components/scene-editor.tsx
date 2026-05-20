@@ -2,7 +2,6 @@
 import { Coffee02Icon, FavouriteIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { zipSync } from 'fflate'
-import type { OnFetchAssets } from '../lib/avnac-asset-library'
 import {
   forwardRef,
   type MouseEvent as ReactMouseEvent,
@@ -18,6 +17,7 @@ import {
 import { createPortal } from 'react-dom'
 import { useStore } from 'zustand'
 import { useViewportAwarePopoverPlacement } from '../hooks/use-viewport-aware-popover'
+import type { OnFetchAssets } from '../lib/avnac-asset-library'
 import { cloneIconSvg } from '../lib/avnac-icon'
 import {
   AVNAC_ICON_DRAG_MIME,
@@ -109,6 +109,7 @@ import {
   type TransformDimensionUi,
   transferMayContainFiles,
 } from '../scene-engine/primitives'
+import { AgplSourceOffer } from './agpl-source-offer'
 import type { BgValue } from './background-popover'
 import BlurToolbarControl from './blur-toolbar-control'
 import type { CanvasAlignKind, CanvasSpacingAxis } from './canvas-element-toolbar'
@@ -117,6 +118,7 @@ import type { EditorSidebarPanelId } from './editor-floating-sidebar'
 import EditorShortcutsModal from './editor-shortcuts-modal'
 import { FloatingToolbarDivider } from './floating-toolbar-shell'
 import ImageCropModal, { type ImageCropModalApplyPayload } from './image-crop-modal'
+import type { PlaceholderFitMode } from './placeholder-toolbar'
 import { AiControllerProvider } from './scene-editor/ai-controller-context'
 import { AssetLibraryProvider } from './scene-editor/asset-library-context'
 import { CanvasStage } from './scene-editor/canvas-stage'
@@ -124,7 +126,6 @@ import {
   type CanvasStageContextValue,
   CanvasStageProvider,
 } from './scene-editor/canvas-stage-context'
-import { AgplSourceOffer } from './agpl-source-offer'
 import { EditorBottomTools } from './scene-editor/editor-bottom-tools'
 import { EditorContextMenu, type EditorContextMenuState } from './scene-editor/editor-context-menu'
 import { EditorSelectionToolbar } from './scene-editor/editor-selection-toolbar'
@@ -151,7 +152,6 @@ import {
 import ShadowToolbarPopover from './shadow-toolbar-popover'
 import type { PopoverShapeKind, ShapesQuickAddKind } from './shapes-popover'
 import StrokeToolbarPopover from './stroke-toolbar-popover'
-import type { PlaceholderFitMode } from './placeholder-toolbar'
 import type { TextFormatToolbarValues } from './text-format-toolbar'
 import TransparencyToolbarPopover from './transparency-toolbar-popover'
 
@@ -184,6 +184,8 @@ type SceneEditorProps = {
   persistDisplayName?: string
   initialArtboardWidth?: number
   initialArtboardHeight?: number
+  initialDocument?: AvnacDocument
+  onChange?: (doc: AvnacDocument) => void
   /** External bg removal handler. If provided, enables "Remove bg" button. */
   onRemoveBackground?: (imageUrl: string) => Promise<{ url: string }>
   /**
@@ -191,7 +193,9 @@ type SceneEditorProps = {
    * Host app should upload the file to its storage and return a URL.
    * If not provided, images are embedded as data URLs.
    */
-  onAssetUpload?: (file: File) => Promise<{ url: string; assetId?: string; width?: number; height?: number }>
+  onAssetUpload?: (
+    file: File,
+  ) => Promise<{ url: string; assetId?: string; width?: number; height?: number }>
   /**
    * Resolve an asset reference (e.g. "asset:<id>") to a loadable URL.
    * Used when loading documents with externally-stored assets.
@@ -457,7 +461,19 @@ function renumberPages(pages: AvnacPage[]): AvnacPage[] {
 }
 
 const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function SceneEditor(
-  { onReadyChange, persistId, persistDisplayName, initialArtboardWidth, initialArtboardHeight, onRemoveBackground, onAssetUpload, assetResolver, onFetchAssets },
+  {
+    onReadyChange,
+    persistId,
+    persistDisplayName,
+    initialArtboardWidth,
+    initialArtboardHeight,
+    initialDocument,
+    onChange,
+    onRemoveBackground,
+    onAssetUpload,
+    assetResolver,
+    onFetchAssets,
+  },
   ref,
 ) {
   const persistIdRef = useRef<string | undefined>(persistId)
@@ -529,10 +545,10 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
   const [textDraft, setTextDraft] = useState('')
   const [backgroundActive, setBackgroundActive] = useState(false)
   const [backgroundHovered, setBackgroundHovered] = useState(false)
-  const imageRemovalFx: {
+  const [imageRemovalFx, setImageRemovalFx] = useState<{
     phase: 'running' | 'success'
     targetId: string
-  } | null = null
+  } | null>(null)
   const [marqueeRect, setMarqueeRect] = useState<MarqueeRect | null>(null)
   const [snapGuides, setSnapGuides] = useState<SceneSnapGuide[]>([])
   const [, setSelectionRev] = useState(0)
@@ -628,6 +644,8 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
     historyTimerRef,
     initialArtboardHeight,
     initialArtboardWidth,
+    initialDocument,
+    onChange,
     onReadyChange,
     persistDisplayNameRef,
     persistId,
@@ -902,7 +920,7 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
   )
 
   const createCenteredObject = useCallback(
-    (obj: SceneObject) => {
+    <T extends { x: number; y: number; width: number; height: number }>(obj: T): T => {
       return { ...obj, x: artboardW / 2 - obj.width / 2, y: artboardH / 2 - obj.height / 2 }
     },
     [artboardW, artboardH],
@@ -1428,9 +1446,7 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
 
   const applyPlaceholderFit = useCallback(
     (fit: PlaceholderFitMode) => {
-      updateSelectedObjects(obj =>
-        obj.type === 'placeholder' ? { ...obj, fit } : obj,
-      )
+      updateSelectedObjects(obj => (obj.type === 'placeholder' ? { ...obj, fit } : obj))
     },
     [updateSelectedObjects],
   )
@@ -1643,8 +1659,7 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
     }
     const targetId = selectedSingle.id
     const src = selectedSingle.src
-    // Set running state via imageRemovalFx-like pattern
-    setDoc(prev => prev) // trigger re-render marker
+    setImageRemovalFx({ phase: 'running', targetId })
     void (async () => {
       try {
         const result = await onRemoveBackground(src)
@@ -1652,16 +1667,18 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
         setDoc(prev => ({
           ...prev,
           objects: prev.objects.map(obj =>
-            obj.id === targetId && obj.type === 'image'
-              ? { ...obj, src: result.url }
-              : obj,
+            obj.id === targetId && obj.type === 'image' ? { ...obj, src: result.url } : obj,
           ),
         }))
+        setImageRemovalFx({ phase: 'success', targetId })
+        window.setTimeout(() => {
+          setImageRemovalFx(current => (current?.targetId === targetId ? null : current))
+        }, 900)
       } catch {
-        // Silently fail — host app should handle errors
+        setImageRemovalFx(current => (current?.targetId === targetId ? null : current))
       }
     })()
-  }, [selectedSingle, onRemoveBackground, setDoc])
+  }, [selectedSingle, onRemoveBackground, setDoc, setImageRemovalFx])
 
   const applyImageCropFromModal = useCallback((rect: ImageCropModalApplyPayload) => {
     const targetId = imageCropTargetIdRef.current
@@ -1828,7 +1845,9 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
               files[`${fileBase}-page-${pageNumber}.${format}`] = await dataUrlToBytes(url)
             }
             const zipBytes = zipSync(files, { level: 0 })
-            const blob = new Blob([zipBytes], { type: 'application/zip' })
+            const zipBuffer = new ArrayBuffer(zipBytes.byteLength)
+            new Uint8Array(zipBuffer).set(zipBytes)
+            const blob = new Blob([zipBuffer], { type: 'application/zip' })
             const zipUrl = URL.createObjectURL(blob)
             const a = document.createElement('a')
             a.href = zipUrl

@@ -8,48 +8,24 @@
 // ── Styles ─────────────────────────────────────────────────────────
 import './styles.css'
 
+// ── AGPL compliance ────────────────────────────────────────────────
+export { AgplSourceOffer } from './components/agpl-source-offer'
+export type { SceneEditorHandle as MemoriaEditorHandle } from './components/scene-editor'
 // ── Main editor component ──────────────────────────────────────────
 export { default as MemoriaEditor } from './components/scene-editor'
-export type { SceneEditorHandle as MemoriaEditorHandle } from './components/scene-editor'
-
-// ── Scene document types ───────────────────────────────────────────
+export type { EditorFeatures } from './components/scene-editor/editor-features-context'
+// ── Feature flags ─────────────────────────────────────────────────
+export {
+  EditorFeaturesProvider,
+  resolveFeatures,
+  useEditorFeatures,
+} from './components/scene-editor/editor-features-context'
+// ── Asset library ────────────────────────────────────────────────
 export type {
-  AvnacDocument,
-  AvnacPage,
-  SceneObject,
-  SceneObjectBase,
-  SceneObjectType,
-  SceneRect,
-  SceneEllipse,
-  ScenePolygon,
-  SceneStar,
-  SceneLine,
-  SceneArrow,
-  SceneText,
-  SceneImage,
-  SceneIcon,
-  SceneVectorBoard,
-  SceneGroup,
-  ScenePlaceholder,
-  SceneShadow,
-} from './lib/avnac-scene'
-
-// ── Scene document utilities ───────────────────────────────────────
-export {
-  AVNAC_DOC_VERSION,
-  createEmptyAvnacDocument,
-  createEmptyAvnacPage,
-  createAvnacPage,
-  parseAvnacDocument,
-  cloneAvnacDocument,
-} from './lib/avnac-scene'
-
-// ── Rendering ──────────────────────────────────────────────────────
-export {
-  renderAvnacDocumentToCanvas,
-  renderAvnacDocumentToDataUrl,
-} from './lib/avnac-scene-render'
-
+  AssetLibraryFetchResult,
+  AssetLibraryItem,
+  OnFetchAssets,
+} from './lib/avnac-asset-library'
 // ── Asset resolution ──────────────────────────────────────────────
 export {
   ASSET_REF_PREFIX,
@@ -59,33 +35,49 @@ export {
   resolveDocumentAssets,
   toAssetRef,
 } from './lib/avnac-asset-resolver'
-
-// ── Asset library ────────────────────────────────────────────────
+// ── Scene document types ───────────────────────────────────────────
 export type {
-  AssetLibraryItem,
-  AssetLibraryFetchResult,
-  OnFetchAssets,
-} from './lib/avnac-asset-library'
-
-// ── Feature flags ─────────────────────────────────────────────────
+  AvnacDocument,
+  AvnacPage,
+  SceneArrow,
+  SceneEllipse,
+  SceneGroup,
+  SceneIcon,
+  SceneImage,
+  SceneLine,
+  SceneObject,
+  SceneObjectBase,
+  SceneObjectType,
+  ScenePlaceholder,
+  ScenePolygon,
+  SceneRect,
+  SceneShadow,
+  SceneStar,
+  SceneText,
+  SceneVectorBoard,
+} from './lib/avnac-scene'
+// ── Scene document utilities ───────────────────────────────────────
 export {
-  EditorFeaturesProvider,
-  resolveFeatures,
-  useEditorFeatures,
-} from './components/scene-editor/editor-features-context'
-export type { EditorFeatures } from './components/scene-editor/editor-features-context'
-
-// ── AGPL compliance ────────────────────────────────────────────────
-export { AgplSourceOffer } from './components/agpl-source-offer'
+  AVNAC_DOC_VERSION,
+  cloneAvnacDocument,
+  createAvnacPage,
+  createEmptyAvnacDocument,
+  createEmptyAvnacPage,
+  parseAvnacDocument,
+} from './lib/avnac-scene'
+// ── Rendering ──────────────────────────────────────────────────────
+export {
+  renderAvnacDocumentToCanvas,
+  renderAvnacDocumentToDataUrl,
+} from './lib/avnac-scene-render'
 
 // ── Public API types (integration contract) ────────────────────────
 export type {
-  MemoriaEditorProps,
-  MemoriaEditorConfig,
-  MemoriaEditorImperativeHandle,
   AssetUploadResult,
   BackgroundRemovalResult,
   EditorExportData,
   EditorExportFormat,
+  MemoriaEditorConfig,
+  MemoriaEditorImperativeHandle,
+  MemoriaEditorProps,
 } from './types/editor-api'
-
