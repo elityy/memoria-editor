@@ -100,6 +100,8 @@ export default function NewCanvasDialog({ open, onClose }: NewCanvasDialogProps)
   const [mode, setMode] = useState<'presets' | 'custom'>('presets')
   const [customW, setCustomW] = useState('1920')
   const [customH, setCustomH] = useState('1080')
+  const [customUnit, setCustomUnit] = useState<'px' | 'mm'>('px')
+  const [customDpi, setCustomDpi] = useState('300')
   const [customError, setCustomError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -124,29 +126,52 @@ export default function NewCanvasDialog({ open, onClose }: NewCanvasDialogProps)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
 
-  const goCreate = (w: number, h: number, _presetLabel?: string) => {
-    const _W = Math.min(CANVAS_MAX, Math.max(CANVAS_MIN, Math.round(w)))
-    const _H = Math.min(CANVAS_MAX, Math.max(CANVAS_MIN, Math.round(h)))
+  const goCreate = (w: number, h: number, _opts?: { widthMm?: number; heightMm?: number; dpi?: number }) => {
+    // TODO: wire to editor artboard resize with mm/DPI metadata
+    void Math.min(CANVAS_MAX, Math.max(CANVAS_MIN, Math.round(w)))
+    void Math.min(CANVAS_MAX, Math.max(CANVAS_MIN, Math.round(h)))
     onClose()
   }
 
   const submitCustom = () => {
-    const w = Number.parseInt(customW.replace(/\s/g, ''), 10)
-    const h = Number.parseInt(customH.replace(/\s/g, ''), 10)
-    if (!Number.isFinite(w) || !Number.isFinite(h)) {
-      setCustomError('Enter width and height as numbers.')
+    const w = Number.parseFloat(customW.replace(/\s/g, ''))
+    const h = Number.parseFloat(customH.replace(/\s/g, ''))
+    if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) {
+      setCustomError('Enter valid width and height.')
       return
     }
-    if (w < CANVAS_MIN || h < CANVAS_MIN) {
-      setCustomError(`Minimum size is ${CANVAS_MIN}×${CANVAS_MIN}px.`)
-      return
+    if (customUnit === 'mm') {
+      const dpi = Number.parseInt(customDpi.replace(/\s/g, ''), 10)
+      if (!Number.isFinite(dpi) || dpi < 72 || dpi > 1200) {
+        setCustomError('DPI must be between 72 and 1200.')
+        return
+      }
+      const pxW = Math.round((w / 25.4) * dpi)
+      const pxH = Math.round((h / 25.4) * dpi)
+      if (pxW < CANVAS_MIN || pxH < CANVAS_MIN) {
+        setCustomError(`Resulting pixel size too small (min ${CANVAS_MIN}px).`)
+        return
+      }
+      if (pxW > CANVAS_MAX || pxH > CANVAS_MAX) {
+        setCustomError(`Resulting pixel size too large (max ${CANVAS_MAX}px).`)
+        return
+      }
+      setCustomError(null)
+      goCreate(pxW, pxH, { widthMm: w, heightMm: h, dpi })
+    } else {
+      const pxW = Math.round(w)
+      const pxH = Math.round(h)
+      if (pxW < CANVAS_MIN || pxH < CANVAS_MIN) {
+        setCustomError(`Minimum size is ${CANVAS_MIN}×${CANVAS_MIN}px.`)
+        return
+      }
+      if (pxW > CANVAS_MAX || pxH > CANVAS_MAX) {
+        setCustomError(`Maximum size is ${CANVAS_MAX}×${CANVAS_MAX}px.`)
+        return
+      }
+      setCustomError(null)
+      goCreate(pxW, pxH)
     }
-    if (w > CANVAS_MAX || h > CANVAS_MAX) {
-      setCustomError(`Maximum size is ${CANVAS_MAX}×${CANVAS_MAX}px.`)
-      return
-    }
-    setCustomError(null)
-    goCreate(w, h)
   }
 
   const renderPresetGroup = (group: (typeof GROUPED_ARTBOARD_PRESETS)[number]) => (
@@ -176,7 +201,7 @@ export default function NewCanvasDialog({ open, onClose }: NewCanvasDialogProps)
             <button
               type="button"
               className="group flex w-full items-center gap-3 rounded-[1rem] border border-transparent bg-[var(--surface)] px-3 py-3 text-left transition-colors hover:border-black/[0.08] hover:bg-black/[0.03]"
-              onClick={() => goCreate(preset.width, preset.height, preset.label)}
+              onClick={() => goCreate(preset.width, preset.height, { widthMm: preset.widthMm, heightMm: preset.heightMm, dpi: preset.dpi })}
             >
               <div
                 className={[
@@ -197,7 +222,9 @@ export default function NewCanvasDialog({ open, onClose }: NewCanvasDialogProps)
                   {preset.label}
                 </span>
                 <span className="mt-0.5 block tabular-nums text-[12px] text-[var(--text-muted)]">
-                  {preset.width} × {preset.height}
+                  {preset.widthMm != null
+                    ? `${preset.widthMm}×${preset.heightMm} mm · ${preset.dpi} DPI`
+                    : `${preset.width} × ${preset.height}`}
                 </span>
               </div>
             </button>
@@ -308,16 +335,48 @@ export default function NewCanvasDialog({ open, onClose }: NewCanvasDialogProps)
                 <div className="rounded-[1.4rem] border border-black/[0.08] bg-black/[0.02] p-4">
                   <p className="m-0 text-sm font-medium text-[var(--text)]">Set exact dimensions</p>
                   <p className="mt-1 text-[13px] leading-relaxed text-[var(--text-muted)]">
-                    Use a custom artboard when you already know the width and height you need.
+                    Choose pixels for screen, or millimeters + DPI for print.
                   </p>
                 </div>
-                <div className="grid grid-cols-2 gap-3 rounded-[1.4rem] border border-black/[0.08] bg-black/[0.02] p-4">
+
+                {/* Unit toggle */}
+                <div className="flex gap-1 rounded-full border border-black/[0.08] bg-black/[0.03] p-1">
+                  <button
+                    type="button"
+                    className={[
+                      'min-h-9 flex-1 rounded-full px-3 text-[13px] font-medium transition-colors',
+                      customUnit === 'px'
+                        ? 'bg-[var(--surface)] text-[var(--text)]'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text)]',
+                    ].join(' ')}
+                    onClick={() => setCustomUnit('px')}
+                  >
+                    Pixels
+                  </button>
+                  <button
+                    type="button"
+                    className={[
+                      'min-h-9 flex-1 rounded-full px-3 text-[13px] font-medium transition-colors',
+                      customUnit === 'mm'
+                        ? 'bg-[var(--surface)] text-[var(--text)]'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text)]',
+                    ].join(' ')}
+                    onClick={() => setCustomUnit('mm')}
+                  >
+                    Millimeters
+                  </button>
+                </div>
+
+                <div className={[
+                  'gap-3 rounded-[1.4rem] border border-black/[0.08] bg-black/[0.02] p-4',
+                  customUnit === 'mm' ? 'grid grid-cols-3' : 'grid grid-cols-2',
+                ].join(' ')}>
                   <div>
                     <label
                       htmlFor="avnac-new-canvas-w"
                       className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--text-subtle)]"
                     >
-                      Width
+                      Width ({customUnit})
                     </label>
                     <input
                       id="avnac-new-canvas-w"
@@ -334,7 +393,7 @@ export default function NewCanvasDialog({ open, onClose }: NewCanvasDialogProps)
                       htmlFor="avnac-new-canvas-h"
                       className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--text-subtle)]"
                     >
-                      Height
+                      Height ({customUnit})
                     </label>
                     <input
                       id="avnac-new-canvas-h"
@@ -346,7 +405,33 @@ export default function NewCanvasDialog({ open, onClose }: NewCanvasDialogProps)
                       autoComplete="off"
                     />
                   </div>
+                  {customUnit === 'mm' ? (
+                    <div>
+                      <label
+                        htmlFor="avnac-new-canvas-dpi"
+                        className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-[var(--text-subtle)]"
+                      >
+                        DPI
+                      </label>
+                      <input
+                        id="avnac-new-canvas-dpi"
+                        type="text"
+                        inputMode="numeric"
+                        value={customDpi}
+                        onChange={e => setCustomDpi(e.target.value)}
+                        className="w-full rounded-xl border border-black/[0.12] bg-[var(--surface)] px-3 py-2.5 text-[15px] text-[var(--text)] outline-none transition-colors focus:border-black/[0.22]"
+                        autoComplete="off"
+                      />
+                    </div>
+                  ) : null}
                 </div>
+
+                {customUnit === 'mm' ? (
+                  <p className="m-0 text-[12px] tabular-nums text-[var(--text-muted)]">
+                    Resulting size: {Math.round((Number.parseFloat(customW) || 0) / 25.4 * (Number.parseInt(customDpi) || 300))} × {Math.round((Number.parseFloat(customH) || 0) / 25.4 * (Number.parseInt(customDpi) || 300))} px
+                  </p>
+                ) : null}
+
                 {customError ? <p className="m-0 text-sm text-red-600">{customError}</p> : null}
                 <button
                   type="button"
