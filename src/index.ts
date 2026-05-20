@@ -49,6 +49,9 @@ export {
   renderAvnacDocumentToDataUrl,
 } from './lib/avnac-scene-render'
 
+// ── AGPL compliance ────────────────────────────────────────────────
+export { AgplSourceOffer } from './components/agpl-source-offer'
+
 // ── Public API types (integration contract) ────────────────────────
 export type {
   MemoriaEditorProps,

@@ -122,6 +122,7 @@ import {
   type CanvasStageContextValue,
   CanvasStageProvider,
 } from './scene-editor/canvas-stage-context'
+import { AgplSourceOffer } from './agpl-source-offer'
 import { EditorBottomTools } from './scene-editor/editor-bottom-tools'
 import { EditorContextMenu, type EditorContextMenuState } from './scene-editor/editor-context-menu'
 import { EditorSelectionToolbar } from './scene-editor/editor-selection-toolbar'
@@ -2806,6 +2807,8 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
             shapesQuickAddKind={shapesQuickAddKind}
             zoomPercent={zoomPercent}
           />
+
+          <AgplSourceOffer />
 
           {!ready ? (
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
