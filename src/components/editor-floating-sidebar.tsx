@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { motion } from 'motion/react'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { type EditorSidebarIconId, editorSidebarIcons } from '@/lib/editor-sidebar-icons'
+import { useEditorFeatures } from './scene-editor/editor-features-context'
 
 export type EditorSidebarPanelId = EditorSidebarIconId
 
@@ -74,11 +75,29 @@ type SidebarIndicatorState = {
   height: number
 }
 
+/** Map panel IDs to feature flag keys */
+const PANEL_FEATURE_MAP: Partial<Record<EditorSidebarPanelId, keyof ReturnType<typeof useEditorFeatures>>> = {
+  layers: 'layers',
+  uploads: 'imageUpload',
+  images: 'stockImages',
+  icons: 'icons',
+  'vector-board': 'vectorBoards',
+  apps: 'apps',
+}
+
 export default function EditorFloatingSidebar({ activePanel, onSelectPanel, disabled }: Props) {
   const navRef = useRef<HTMLElement | null>(null)
   const buttonRefs = useRef<Partial<Record<EditorSidebarPanelId, HTMLButtonElement | null>>>({})
   const [indicator, setIndicator] = useState<SidebarIndicatorState | null>(null)
-  const activeItem = activePanel ? (ITEMS.find(item => item.id === activePanel) ?? null) : null
+  const features = useEditorFeatures()
+  const visibleItems = useMemo(
+    () => ITEMS.filter(item => {
+      const flag = PANEL_FEATURE_MAP[item.id]
+      return !flag || features[flag]
+    }),
+    [features],
+  )
+  const activeItem = activePanel ? (visibleItems.find(item => item.id === activePanel) ?? null) : null
 
   useLayoutEffect(() => {
     if (!activeItem || activeItem.fancy) {
@@ -159,7 +178,7 @@ export default function EditorFloatingSidebar({ activePanel, onSelectPanel, disa
           className="pointer-events-none absolute left-0 top-0 z-0 rounded-2xl border border-black/[0.06] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
         />
       ) : null}
-      {ITEMS.map(item => {
+      {visibleItems.map(item => {
         const active = activePanel === item.id
         const icon = active ? item.activeIcon : item.icon
         if (item.fancy) {

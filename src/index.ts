@@ -50,6 +50,14 @@ export {
   renderAvnacDocumentToDataUrl,
 } from './lib/avnac-scene-render'
 
+// ── Feature flags ─────────────────────────────────────────────────
+export {
+  EditorFeaturesProvider,
+  resolveFeatures,
+  useEditorFeatures,
+} from './components/scene-editor/editor-features-context'
+export type { EditorFeatures } from './components/scene-editor/editor-features-context'
+
 // ── AGPL compliance ────────────────────────────────────────────────
 export { AgplSourceOffer } from './components/agpl-source-offer'
 

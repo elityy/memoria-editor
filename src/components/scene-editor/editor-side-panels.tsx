@@ -2,6 +2,7 @@
 import { lazy, Suspense } from 'react'
 
 import { emptyVectorBoardDocument } from '../../lib/avnac-vector-board-document'
+import { useEditorFeatures } from './editor-features-context'
 import {
   editorSidebarPanelLeftClass,
   editorSidebarPanelTopClass,
@@ -69,6 +70,7 @@ export function EditorSidePanels({
     vectorWorkspaceId,
     vectorWorkspaceName,
   } = useVectorBoardControlsContext()
+  const features = useEditorFeatures()
 
   return (
     <>
@@ -76,34 +78,44 @@ export function EditorSidePanels({
         <EditorFloatingSidebar activePanel={activePanel} onSelectPanel={onSelectPanel} />
       ) : null}
 
-      <EditorLayersPanel
-        open={ready && activePanel === 'layers'}
-        onClose={onClosePanel}
-        rows={layerRows}
-        onSelectLayer={onSelectLayer}
-        onToggleVisible={onToggleLayerVisible}
-        onBringForward={onLayerBringForward}
-        onSendBackward={onLayerSendBackward}
-        onReorder={onLayerReorder}
-        onRenameLayer={onRenameLayer}
-      />
-      <EditorUploadsPanel open={ready && activePanel === 'uploads'} onClose={onClosePanel} />
-      <EditorImagesPanel open={ready && activePanel === 'images'} onClose={onClosePanel} />
-      {ready && activePanel === 'icons' ? (
+      {features.layers ? (
+        <EditorLayersPanel
+          open={ready && activePanel === 'layers'}
+          onClose={onClosePanel}
+          rows={layerRows}
+          onSelectLayer={onSelectLayer}
+          onToggleVisible={onToggleLayerVisible}
+          onBringForward={onLayerBringForward}
+          onSendBackward={onLayerSendBackward}
+          onReorder={onLayerReorder}
+          onRenameLayer={onRenameLayer}
+        />
+      ) : null}
+      {features.imageUpload ? (
+        <EditorUploadsPanel open={ready && activePanel === 'uploads'} onClose={onClosePanel} />
+      ) : null}
+      {features.stockImages ? (
+        <EditorImagesPanel open={ready && activePanel === 'images'} onClose={onClosePanel} />
+      ) : null}
+      {features.icons && ready && activePanel === 'icons' ? (
         <Suspense fallback={<EditorIconsPanelLoading />}>
           <EditorIconsPanel open onClose={onClosePanel} />
         </Suspense>
       ) : null}
-      <EditorVectorBoardPanel
-        open={ready && activePanel === 'vector-board'}
-        onClose={onClosePanel}
-        boards={boards}
-        boardDocs={boardDocs}
-        onCreateNew={createVectorBoard}
-        onOpenBoard={openVectorBoardWorkspace}
-        onDeleteBoard={deleteVectorBoard}
-      />
-      <EditorAppsPanel open={ready && activePanel === 'apps'} onClose={onClosePanel} />
+      {features.vectorBoards ? (
+        <EditorVectorBoardPanel
+          open={ready && activePanel === 'vector-board'}
+          onClose={onClosePanel}
+          boards={boards}
+          boardDocs={boardDocs}
+          onCreateNew={createVectorBoard}
+          onOpenBoard={openVectorBoardWorkspace}
+          onDeleteBoard={deleteVectorBoard}
+        />
+      ) : null}
+      {features.apps ? (
+        <EditorAppsPanel open={ready && activePanel === 'apps'} onClose={onClosePanel} />
+      ) : null}
       {/* Magic is temporarily hidden while the hosted AI path is paused. */}
       {vectorWorkspaceId ? (
         <VectorBoardWorkspace

@@ -114,6 +114,12 @@ export type MemoriaEditorConfig = {
     vectorBoards?: boolean
     /** Allow image upload panel (default: true) */
     imageUpload?: boolean
+    /** Allow stock images panel (default: true) */
+    stockImages?: boolean
+    /** Allow apps panel (default: true) */
+    apps?: boolean
+    /** Allow layers panel (default: true) */
+    layers?: boolean
     /** Allow export menu (default: true) */
     export?: boolean
   }
