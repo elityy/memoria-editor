@@ -50,6 +50,16 @@ export {
   renderAvnacDocumentToDataUrl,
 } from './lib/avnac-scene-render'
 
+// ── Asset resolution ──────────────────────────────────────────────
+export {
+  ASSET_REF_PREFIX,
+  getAssetId,
+  isAssetRef,
+  resolveAllPagesAssets,
+  resolveDocumentAssets,
+  toAssetRef,
+} from './lib/avnac-asset-resolver'
+
 // ── Feature flags ─────────────────────────────────────────────────
 export {
   EditorFeaturesProvider,

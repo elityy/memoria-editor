@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 import { type Dispatch, type MutableRefObject, type SetStateAction, useEffect } from 'react'
+import { resolveAllPagesAssets } from '../../lib/avnac-asset-resolver'
 import { idbGetDocument, idbPutDocument } from '../../lib/avnac-editor-idb'
 import {
   AVNAC_STORAGE_KEY,
@@ -12,6 +13,7 @@ import { clampDimension } from '../../scene-engine/primitives'
 
 type UseSceneDocumentLifecycleArgs = {
   applyingHistoryRef: MutableRefObject<boolean>
+  assetResolver?: (assetRef: string) => string | Promise<string>
   autosaveTimerRef: MutableRefObject<number | null>
   defaultArtboardH: number
   defaultArtboardW: number
@@ -36,6 +38,7 @@ type UseSceneDocumentLifecycleArgs = {
 
 export function useSceneDocumentLifecycle({
   applyingHistoryRef,
+  assetResolver,
   autosaveTimerRef,
   defaultArtboardH,
   defaultArtboardW,
@@ -73,12 +76,21 @@ export function useSceneDocumentLifecycle({
           nextDoc = null
         }
       }
-      const base =
+      let base =
         nextDoc ??
         createEmptyAvnacDocument(
           clampDimension(initialArtboardWidth, defaultArtboardW),
           clampDimension(initialArtboardHeight, defaultArtboardH),
         )
+      if (cancelled) return
+      // Resolve asset: references to loadable URLs
+      if (assetResolver) {
+        try {
+          base = await resolveAllPagesAssets(base, assetResolver)
+        } catch (err) {
+          console.error('[avnac] asset resolution failed', err)
+        }
+      }
       if (cancelled) return
       setDoc(base)
       setSelectedIds([])
@@ -93,6 +105,7 @@ export function useSceneDocumentLifecycle({
       cancelled = true
     }
   }, [
+    assetResolver,
     defaultArtboardH,
     defaultArtboardW,
     historyIndexRef,

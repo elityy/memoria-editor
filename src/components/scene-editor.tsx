@@ -184,6 +184,17 @@ type SceneEditorProps = {
   initialArtboardHeight?: number
   /** External bg removal handler. If provided, enables "Remove bg" button. */
   onRemoveBackground?: (imageUrl: string) => Promise<{ url: string }>
+  /**
+   * Called when the user adds an image (drag/drop, paste, file picker).
+   * Host app should upload the file to its storage and return a URL.
+   * If not provided, images are embedded as data URLs.
+   */
+  onAssetUpload?: (file: File) => Promise<{ url: string; assetId?: string; width?: number; height?: number }>
+  /**
+   * Resolve an asset reference (e.g. "asset:<id>") to a loadable URL.
+   * Used when loading documents with externally-stored assets.
+   */
+  assetResolver?: (assetRef: string) => string | Promise<string>
 }
 
 function artboardAlignAlreadySatisfied(
@@ -438,7 +449,7 @@ function renumberPages(pages: AvnacPage[]): AvnacPage[] {
 }
 
 const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function SceneEditor(
-  { onReadyChange, persistId, persistDisplayName, initialArtboardWidth, initialArtboardHeight, onRemoveBackground },
+  { onReadyChange, persistId, persistDisplayName, initialArtboardWidth, initialArtboardHeight, onRemoveBackground, onAssetUpload, assetResolver },
   ref,
 ) {
   const persistIdRef = useRef<string | undefined>(persistId)
@@ -599,6 +610,7 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
 
   useSceneDocumentLifecycle({
     applyingHistoryRef,
+    assetResolver,
     autosaveTimerRef,
     defaultArtboardH: DEFAULT_ARTBOARD_H,
     defaultArtboardW: DEFAULT_ARTBOARD_W,
@@ -1163,14 +1175,30 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
       let placedCount = 0
       for (const file of list) {
         if (!isImageFile(file)) continue
-        const dataUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader()
-          reader.onload = () => resolve(String(reader.result))
-          reader.onerror = () => reject(reader.error)
-          reader.readAsDataURL(file)
-        })
+        let imageUrl: string
+        if (onAssetUpload) {
+          try {
+            const result = await onAssetUpload(file)
+            imageUrl = result.url
+          } catch (err) {
+            console.error('[avnac] asset upload failed, falling back to data URL', err)
+            imageUrl = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader()
+              reader.onload = () => resolve(String(reader.result))
+              reader.onerror = () => reject(reader.error)
+              reader.readAsDataURL(file)
+            })
+          }
+        } else {
+          imageUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve(String(reader.result))
+            reader.onerror = () => reject(reader.error)
+            reader.readAsDataURL(file)
+          })
+        }
         await placeImageObject(
-          dataUrl,
+          imageUrl,
           opts
             ? {
                 ...opts,
@@ -1188,7 +1216,7 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
         placedCount += 1
       }
     },
-    [placeImageObject],
+    [onAssetUpload, placeImageObject],
   )
 
   const updateSelectedObjects = useCallback(
