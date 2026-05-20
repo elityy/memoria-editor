@@ -149,6 +149,7 @@ import {
 import ShadowToolbarPopover from './shadow-toolbar-popover'
 import type { PopoverShapeKind, ShapesQuickAddKind } from './shapes-popover'
 import StrokeToolbarPopover from './stroke-toolbar-popover'
+import type { PlaceholderFitMode } from './placeholder-toolbar'
 import type { TextFormatToolbarValues } from './text-format-toolbar'
 import TransparencyToolbarPopover from './transparency-toolbar-popover'
 
@@ -675,6 +676,17 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
     return {
       radius: selectedSingle.cornerRadius,
       max: maxCornerRadiusForObject(selectedSingle),
+    }
+  }, [selectedSingle])
+
+  const placeholderToolbar = useMemo(() => {
+    if (!selectedSingle || selectedSingle.type !== 'placeholder') return null
+    return {
+      fit: selectedSingle.fit,
+      cornerRadius: selectedSingle.cornerRadius,
+      cornerRadiusMax: maxCornerRadiusForObject(selectedSingle),
+      borderColor: selectedSingle.borderColor || '#ffb88e',
+      label: selectedSingle.label || '',
     }
   }, [selectedSingle])
 
@@ -1371,6 +1383,33 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
     (radius: number) => {
       updateSelectedObjects(obj =>
         obj.type === 'image' ? setObjectCornerRadius(obj, radius) : obj,
+      )
+    },
+    [updateSelectedObjects],
+  )
+
+  const applyPlaceholderFit = useCallback(
+    (fit: PlaceholderFitMode) => {
+      updateSelectedObjects(obj =>
+        obj.type === 'placeholder' ? { ...obj, fit } : obj,
+      )
+    },
+    [updateSelectedObjects],
+  )
+
+  const applyPlaceholderCornerRadius = useCallback(
+    (radius: number) => {
+      updateSelectedObjects(obj =>
+        obj.type === 'placeholder' ? setObjectCornerRadius(obj, radius) : obj,
+      )
+    },
+    [updateSelectedObjects],
+  )
+
+  const applyPlaceholderBorderColor = useCallback(
+    (color: string) => {
+      updateSelectedObjects(obj =>
+        obj.type === 'placeholder' ? { ...obj, borderColor: color } : obj,
       )
     },
     [updateSelectedObjects],
@@ -2630,6 +2669,9 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
       applyBackgroundPicked,
       applyImageCornerRadius,
       applyPaintToSelection,
+      applyPlaceholderFit,
+      applyPlaceholderCornerRadius,
+      applyPlaceholderBorderColor,
       applyPolygonSides,
       applyRectCornerRadius,
       applyStarPoints,
@@ -2654,6 +2696,7 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
       hasObjectSelected,
       imageCornerToolbar,
       imageRemovalState,
+      placeholderToolbar,
       ready,
       selectionFillPaint,
       selectionEffectsFooterSlot,

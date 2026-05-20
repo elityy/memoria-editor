@@ -5,6 +5,7 @@ import ArtboardResizeToolbarControl from '../artboard-resize-toolbar-control'
 import BackgroundPopover, { bgValueToSwatch } from '../background-popover'
 import CornerRadiusToolbarControl from '../corner-radius-toolbar-control'
 import PaintPopoverControl from '../paint-popover-control'
+import PlaceholderToolbar from '../placeholder-toolbar'
 import ShapeOptionsToolbar from '../shape-options-toolbar'
 import TextFormatToolbar from '../text-format-toolbar'
 import { Button, Divider, IconButton, Toolbar } from '../ui'
@@ -23,6 +24,9 @@ export function EditorSelectionToolbar() {
     applyBackgroundPicked,
     applyImageCornerRadius,
     applyPaintToSelection,
+    applyPlaceholderFit,
+    applyPlaceholderCornerRadius,
+    applyPlaceholderBorderColor,
     applyPolygonSides,
     applyRectCornerRadius,
     applyStarPoints,
@@ -43,6 +47,7 @@ export function EditorSelectionToolbar() {
     hasObjectSelected,
     imageCornerToolbar,
     imageRemovalState,
+    placeholderToolbar,
     ready,
     selectionFillPaint,
     selectionEffectsFooterSlot,
@@ -52,11 +57,12 @@ export function EditorSelectionToolbar() {
 
   const showTextToolbar = ready && !!textToolbarValues
   const showShapeToolbar = ready && !textToolbarValues && !!shapeToolbarModel
-  const showEffectsToolbar = ready && hasObjectSelected && !textToolbarValues && !shapeToolbarModel
+  const showPlaceholderToolbar = ready && !textToolbarValues && !shapeToolbarModel && !!placeholderToolbar
+  const showEffectsToolbar = ready && hasObjectSelected && !textToolbarValues && !shapeToolbarModel && !placeholderToolbar
   const showBackgroundToolbar =
     ready && backgroundActive && !hasObjectSelected && !textToolbarValues && !shapeToolbarModel
 
-  if (!showTextToolbar && !showShapeToolbar && !showEffectsToolbar && !showBackgroundToolbar) {
+  if (!showTextToolbar && !showShapeToolbar && !showPlaceholderToolbar && !showEffectsToolbar && !showBackgroundToolbar) {
     return null
   }
 
@@ -91,6 +97,17 @@ export function EditorSelectionToolbar() {
             onRectCornerRadius={
               shapeToolbarModel.meta.kind === 'rect' ? applyRectCornerRadius : undefined
             }
+            footerSlot={selectionEffectsFooterSlot}
+          />
+        </div>
+      ) : null}
+      {showPlaceholderToolbar && placeholderToolbar ? (
+        <div className="pointer-events-auto">
+          <PlaceholderToolbar
+            model={placeholderToolbar}
+            onFitChange={applyPlaceholderFit}
+            onCornerRadius={applyPlaceholderCornerRadius}
+            onBorderColorChange={applyPlaceholderBorderColor}
             footerSlot={selectionEffectsFooterSlot}
           />
         </div>

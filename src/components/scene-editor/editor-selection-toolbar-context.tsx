@@ -3,6 +3,7 @@ import { createContext, type ReactNode, type RefObject, useContext } from 'react
 
 import type { ArrowLineStyle, ArrowPathType, AvnacShapeMeta } from '../../lib/avnac-shape-meta'
 import type { BgValue } from '../background-popover'
+import type { PlaceholderFitMode, PlaceholderToolbarModel } from '../placeholder-toolbar'
 import type { TextFormatToolbarValues } from '../text-format-toolbar'
 
 export type SelectionShapeToolbarModel = {
@@ -33,6 +34,7 @@ type SelectionToolbarState = {
   hasObjectSelected: boolean
   imageCornerToolbar: SelectionImageCornerToolbar | null
   imageRemovalState: 'idle' | 'running' | 'success'
+  placeholderToolbar: PlaceholderToolbarModel | null
   ready: boolean
   selectionFillPaint: BgValue | null
   selectionEffectsFooterSlot: ReactNode
@@ -47,6 +49,9 @@ type SelectionToolbarActions = {
   applyArrowStrokeWidth: (width: number) => void
   applyBackgroundPicked: (bg: BgValue) => void
   applyImageCornerRadius: (radius: number) => void
+  applyPlaceholderFit: (fit: PlaceholderFitMode) => void
+  applyPlaceholderCornerRadius: (radius: number) => void
+  applyPlaceholderBorderColor: (color: string) => void
   applyPaintToSelection: (bg: BgValue) => void
   applyPolygonSides: (sides: number) => void
   applyRectCornerRadius: (radius: number) => void
