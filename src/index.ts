@@ -67,6 +67,7 @@ export type {
   MemoriaEditorConfig,
   MemoriaEditorImperativeHandle,
   AssetUploadResult,
+  BackgroundRemovalResult,
   EditorExportData,
   EditorExportFormat,
 } from './types/editor-api'

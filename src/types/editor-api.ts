@@ -56,6 +56,16 @@ export type MemoriaEditorProps = {
    */
   assetResolver?: (assetRef: string) => string | Promise<string>
 
+  // ── Image processing callbacks ────────────────────────────────────
+
+  /**
+   * Called when the user clicks "Remove bg" on an image.
+   * Host app should process the image (e.g., via an AI service) and
+   * return the URL of the background-removed image.
+   * If not provided, the button shows an "unavailable" notice.
+   */
+  onRemoveBackground?: (imageUrl: string) => Promise<BackgroundRemovalResult>
+
   // ── Export callbacks ─────────────────────────────────────────────
 
   /**
@@ -97,6 +107,13 @@ export type EditorExportData = {
   pageIndex?: number
   /** Display name used for the export filename */
   fileName: string
+}
+
+// ── Background Removal ─────────────────────────────────────────────
+
+export type BackgroundRemovalResult = {
+  /** URL of the processed image with background removed */
+  url: string
 }
 
 // ── Config ─────────────────────────────────────────────────────────

@@ -182,6 +182,8 @@ type SceneEditorProps = {
   persistDisplayName?: string
   initialArtboardWidth?: number
   initialArtboardHeight?: number
+  /** External bg removal handler. If provided, enables "Remove bg" button. */
+  onRemoveBackground?: (imageUrl: string) => Promise<{ url: string }>
 }
 
 function artboardAlignAlreadySatisfied(
@@ -436,7 +438,7 @@ function renumberPages(pages: AvnacPage[]): AvnacPage[] {
 }
 
 const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function SceneEditor(
-  { onReadyChange, persistId, persistDisplayName, initialArtboardWidth, initialArtboardHeight },
+  { onReadyChange, persistId, persistDisplayName, initialArtboardWidth, initialArtboardHeight, onRemoveBackground },
   ref,
 ) {
   const persistIdRef = useRef<string | undefined>(persistId)
@@ -1599,8 +1601,31 @@ const SceneEditor = forwardRef<SceneEditorHandle, SceneEditorProps>(function Sce
 
   const removeImageBackground = useCallback(() => {
     if (!selectedSingle || selectedSingle.type !== 'image' || selectedSingle.locked) return
-    setImageRemovalUnavailableOpen(true)
-  }, [selectedSingle])
+    if (!onRemoveBackground) {
+      setImageRemovalUnavailableOpen(true)
+      return
+    }
+    const targetId = selectedSingle.id
+    const src = selectedSingle.src
+    // Set running state via imageRemovalFx-like pattern
+    setDoc(prev => prev) // trigger re-render marker
+    void (async () => {
+      try {
+        const result = await onRemoveBackground(src)
+        // Replace image src with bg-removed version
+        setDoc(prev => ({
+          ...prev,
+          objects: prev.objects.map(obj =>
+            obj.id === targetId && obj.type === 'image'
+              ? { ...obj, src: result.url }
+              : obj,
+          ),
+        }))
+      } catch {
+        // Silently fail — host app should handle errors
+      }
+    })()
+  }, [selectedSingle, onRemoveBackground, setDoc])
 
   const applyImageCropFromModal = useCallback((rect: ImageCropModalApplyPayload) => {
     const targetId = imageCropTargetIdRef.current
