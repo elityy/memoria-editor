@@ -49,3 +49,13 @@ export {
   renderAvnacDocumentToDataUrl,
 } from './lib/avnac-scene-render'
 
+// ── Public API types (integration contract) ────────────────────────
+export type {
+  MemoriaEditorProps,
+  MemoriaEditorConfig,
+  MemoriaEditorImperativeHandle,
+  AssetUploadResult,
+  EditorExportData,
+  EditorExportFormat,
+} from './types/editor-api'
+
