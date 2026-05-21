@@ -438,6 +438,45 @@ export function SceneObjectView({
     )
   }
 
+  if (obj.type === 'placeholder') {
+    const borderColor = obj.borderColor || 'var(--accent)'
+    const label = obj.label?.trim() || 'Guest photo'
+
+    return (
+      <div
+        style={{
+          ...style,
+          overflow: 'hidden',
+          borderRadius: obj.cornerRadius,
+          border: `2px dashed ${borderColor}`,
+          background:
+            'repeating-linear-gradient(45deg, rgba(255,255,255,0.9) 0 12px, rgba(0,0,0,0.035) 12px 24px)',
+        }}
+        data-avnac-scene-object
+        onPointerDown={e => onObjectPointerDown(e, obj)}
+        {...hoverProps}
+        title={obj.locked ? `Locked ${label}` : label}
+      >
+        {obj.previewImageUrl ? (
+          <img
+            src={obj.previewImageUrl}
+            alt=""
+            draggable={false}
+            className="pointer-events-none h-full w-full select-none"
+            style={{
+              objectFit: obj.fit === 'fill' ? 'fill' : obj.fit,
+              borderRadius: Math.max(0, obj.cornerRadius - 2),
+            }}
+          />
+        ) : (
+          <div className="pointer-events-none flex h-full w-full items-center justify-center bg-black/[0.03] px-3 text-center text-sm font-medium text-neutral-500">
+            {label}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   const fillId = `${defsIdBase}-fill`
   const strokeId = `${defsIdBase}-stroke`
   const strokeWidth = 'strokeWidth' in obj ? obj.strokeWidth : 0

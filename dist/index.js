@@ -4312,6 +4312,35 @@ function ts({ obj: e, vectorBoardDocs: t, textEditingId: n, textDraft: r, onObje
 			})
 		});
 	}
+	if (e.type === "placeholder") {
+		let t = e.borderColor || "var(--accent)", n = e.label?.trim() || "Guest photo";
+		return /* @__PURE__ */ B("div", {
+			style: {
+				...u,
+				overflow: "hidden",
+				borderRadius: e.cornerRadius,
+				border: `2px dashed ${t}`,
+				background: "repeating-linear-gradient(45deg, rgba(255,255,255,0.9) 0 12px, rgba(0,0,0,0.035) 12px 24px)"
+			},
+			"data-avnac-scene-object": !0,
+			onPointerDown: (t) => i(t, e),
+			...f,
+			title: e.locked ? `Locked ${n}` : n,
+			children: e.previewImageUrl ? /* @__PURE__ */ B("img", {
+				src: e.previewImageUrl,
+				alt: "",
+				draggable: !1,
+				className: "pointer-events-none h-full w-full select-none",
+				style: {
+					objectFit: e.fit === "fill" ? "fill" : e.fit,
+					borderRadius: Math.max(0, e.cornerRadius - 2)
+				}
+			}) : /* @__PURE__ */ B("div", {
+				className: "pointer-events-none flex h-full w-full items-center justify-center bg-black/[0.03] px-3 text-center text-sm font-medium text-neutral-500",
+				children: n
+			})
+		});
+	}
 	let p = `${d}-fill`, m = `${d}-stroke`, h = "strokeWidth" in e ? e.strokeWidth : 0, g = {
 		display: "block",
 		overflow: "visible"
